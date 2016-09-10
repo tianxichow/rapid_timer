@@ -8,19 +8,44 @@
 #ifndef _TIMER_NODE_H_
 #define _TIMER_NODE_H_
 
+#include "time.h"
+#include "string.h"
+
+#include "list_node.h"
+
+
 typedef struct timer_node {
 
-    timer_id id; 
-    uint32_t interval;
-    uint32_t expire;
+    uint32_t id;                        // timer_node index 
+    uint32_t seq;                       // sequence number
+    struct timeval interval;            // interval info
+    struct timeval expire;              
     bool is_repeate;
-    int (*action_func)(const void*);
-    void * action_data;
+    int (*action_handler)(const void*);
+    void* action_data;
 
-    struct list_head list_node;
-    struct rb_node tree_node;
+    list_node node;
+    //struct rb_node tree_node;
 
 }timer_node;
+
+void timer_node_init(timer_node* tn) {
+    int node_index = tn->id;
+    memset(tn, 0x0, sizeof(timer_node));
+    tn->id = node_index;
+    tn->node.entity = tn;
+}
+
+bool is_expire_node(const list_node* node, struct timeval* now_timestamp) {
+    struct timeval* expire = &((timer_node*)node->entity)->expire;
+    if (expire->tv_sec > now_timestamp->tv_sec) {
+        return true;
+    }
+    if (expire->tv_usec > now_timestamp->tv_usec) {
+        return true;
+    }
+    return false;
+}
 
 
 #endif

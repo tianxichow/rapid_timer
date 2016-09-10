@@ -8,14 +8,16 @@
 #ifndef _LIST_NODE_H_                                                                   
 #define _LIST_NODE_H_
 
+#include "stddef.h"
+
 typedef struct list_node {
     struct list_node *next, *prev;
     void* entity;
 }list_node;
 
-#define LIST_HEAD_INIT(head) head = { &(head), &(head) , NULL}
+void list_head_init(list_node *head);
 
-#define LIST_NODE_INIT(node) node = { NULL, NULL, NULL}
+void list_node_init(list_node *node);
 
 int list_is_empty(const list_node *head);
 

@@ -7,12 +7,17 @@
 
 #include "list_node.h"
 
-static inline void __list_add(list_node *node, list_node *prev, list_node *next) {
-	
-    next->prev = node;
-	node->next = next;
-	node->prev = prev;
-	prev->next = node;
+
+void list_head_init(list_node *head) {
+	head->next = head;
+	head->prev = head;
+	head->entity = NULL;
+}
+
+void list_node_init(list_node *node) {
+	node->next = NULL;
+	node->prev = NULL;
+	node->entity = NULL;
 }
 
 int list_is_empty(const list_node *head) {
@@ -23,6 +28,14 @@ int list_is_empty(const list_node *head) {
 
 int list_is_last(const list_node *node, const list_node *head) {
     return node->next == head;
+}
+
+static inline void __list_add(list_node *node, list_node *prev, list_node *next) {
+	
+    next->prev = node;
+	node->next = next;
+	node->prev = prev;
+	prev->next = node;
 }
 
 void list_add(list_node *node, list_node *head) {

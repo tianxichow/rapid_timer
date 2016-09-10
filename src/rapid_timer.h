@@ -6,21 +6,30 @@
 *********************************************/
 
 
-#ifndef RAPID_TIMER_H_
-#define RAPID_TIMER_H_
+#ifndef _RAPID_TIMER_H_
+#define _RAPID_TIMER_H_
 
+#include "stdio.h"
+#include "stdlib.h"
 #include "stdint.h"
+#include "stdbool.h"
 
-#define UNSORTED_LIST                       1
-#define SORTED_LIST                         2
-#define RBTREE                              3
-#define SIMPLE_WHEEL                        4
-#define HASHED_WHEEL_UNSORTED_LIST          5
-#define HASHED_WHEEL_SORTED_LIST            6
-#define HIERARCHICAL_WHEEL                  7
+#include "list_node.h"
+#include "timer_node.h"
 
-#define uint32_t                            timer_id
+
+
+#define UNSORTED_LIST                       0
+#define SORTED_LIST                         1
+#define RBTREE                              2
+#define HASHED_WHEEL_UNSORTED_LIST          3
+#define HASHED_WHEEL_SORTED_LIST            4
+#define HIERARCHICAL_WHEEL                  5
+#define MAX_SCHEME_NUMS                     6
+
+#define timer_id                            uint32_t 
 #define DEFAULT_TIMER_NUMS                  1000
+
 
 
 typedef struct rapid_timer {
@@ -28,32 +37,35 @@ typedef struct rapid_timer {
     int magic_num;
 
     int scheme_id;
-    int max_interval;
-    int accuracy;
+    uint32_t accuracy;
     void* mem;
-    int men_size;
+    int mem_size;
 
+    timer_node* timer_nodes;
+    uint32_t timer_node_nums;
+    list_node free_timer_nodes;
     uint32_t sequence;
+
+    struct timeval last_tick;
+
     void* scheme;
- 
-    struct list_head free_timer_nodes;
 
     char err_msg[1024];
 
 }rapid_timer;
 
-rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t max_interval, 
-                              uint32_t accuracy, 
+rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
                               void* mem, size_t mem_size, 
                               bool reuse);
 
-int rapid_timer_start(rapid_timer rt, uint32_t interval, bool is_repeate, 
-                     int (*action_func)(const void*), void* action_data, 
-                     timer_id& id);
+int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp,
+                      struct timeval* interval, bool is_repeate, 
+                      int (*action_handler)(const void*), void* action_data, 
+                      timer_id *id);
 
-int repid_timer_stop(rapid_timer rt, timer_id id);
+int repid_timer_stop(rapid_timer* rt, timer_id id);
 
-int repid_timer_tick(rapid_timer rt, uint32_t now_timestamp);
+int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp);
 
 
 #endif
