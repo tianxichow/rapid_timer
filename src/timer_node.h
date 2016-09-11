@@ -8,11 +8,12 @@
 #ifndef _TIMER_NODE_H_
 #define _TIMER_NODE_H_
 
-#include "time.h"
+#include <sys/time.h>
 #include "string.h"
+#include "stdint.h"
+#include "stdbool.h"
 
 #include "list_node.h"
-
 
 typedef struct timer_node {
 
@@ -29,24 +30,11 @@ typedef struct timer_node {
 
 }timer_node;
 
-void timer_node_init(timer_node* tn) {
-    int node_index = tn->id;
-    memset(tn, 0x0, sizeof(timer_node));
-    tn->id = node_index;
-    tn->node.entity = tn;
-}
+void timer_node_init(timer_node* tn);
 
-bool is_expire_node(const list_node* node, struct timeval* now_timestamp) {
-    struct timeval* expire = &((timer_node*)node->entity)->expire;
-    if (expire->tv_sec > now_timestamp->tv_sec) {
-        return true;
-    }
-    if (expire->tv_usec > now_timestamp->tv_usec) {
-        return true;
-    }
-    return false;
-}
+bool is_expire_node(const list_node* node, struct timeval* now_timestamp);
 
+uint32_t get_slot(const list_node* node, uint32_t slot_nums);
 
 #endif
 

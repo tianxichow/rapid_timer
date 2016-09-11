@@ -24,7 +24,7 @@ size_t scheme_size(rapid_timer* rt) {
     switch(rt->scheme_id) {
 
         case UNSORTED_LIST:
-            return ((unsorted_list*)rt->scheme)->size;
+            return sizeof(unsorted_list);
 
     }
 
@@ -91,12 +91,13 @@ int free_nodes_init(rapid_timer* rt) {
     }
 
     rt->timer_node_nums = node_index;
+    printf("%d timer_node init\n", node_index);
     return 0;
 }
 
 rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
                               void* mem, size_t mem_size, 
-                              bool reuse) {
+                              int persist_type) {
 
     if (scheme_id < UNSORTED_LIST || scheme_id > HIERARCHICAL_WHEEL) {
 
@@ -120,7 +121,7 @@ rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
         timer_mem = mem;
         timer_size = mem_size;
 
-        if (reuse) {
+        if (KERNEL_PERSIST == persist_type) {
 
             rt = (rapid_timer*)mem;
 
@@ -240,7 +241,10 @@ int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp,
             break;
     }
 
-    *id = tn->id;
+    if (NULL != id) {
+        *id = tn->id;
+    }
+    
     return 0;
 }
 
@@ -284,6 +288,8 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
         return -1;
     }
 
+    int ret = 0;
+
     switch(rt->scheme_id) {
 
         case UNSORTED_LIST:
@@ -291,8 +297,7 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
             do {
                 list_node* node = unsorted_list_get((unsorted_list*)rt->scheme,
                                                     &rt->last_tick,
-                                                    now_timestamp,
-                                                    is_expire_node);
+                                                    now_timestamp);
                 if (NULL == node) {
                     break;
                 }
@@ -303,9 +308,25 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
                     tn->action_handler(tn->action_data);
                 } 
 
-                unsorted_list_stop(&tn->node);               
-                timer_node_init(tn);
-                list_add_tail(&tn->node, &rt->free_timer_nodes);
+                if (tn->is_repeate) {
+    
+                    tn->seq = rt->sequence++;
+                    tn->expire.tv_sec = now_timestamp->tv_sec + tn->interval.tv_sec;
+                    tn->expire.tv_usec = now_timestamp->tv_usec + tn->interval.tv_usec;
+
+                    ret = unsorted_list_start((unsorted_list*)rt->scheme, node);
+            
+                    if (0 != ret) {
+                        timer_node_init(tn);
+                        list_add_tail(&tn->node, &rt->free_timer_nodes);
+                        return -1;
+                    }
+
+                } else {
+                    timer_node_init(tn);
+                    list_add_tail(&tn->node, &rt->free_timer_nodes);
+                }
+
             } while (1);
             break;
         }

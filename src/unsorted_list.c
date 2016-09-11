@@ -1,7 +1,12 @@
 
 #include "unsorted_list.h"
+#include "timer_node.h"
 
 unsorted_list* unsorted_list_init(void* mem, size_t mem_size) {
+
+    if (NULL == mem) {
+        return NULL;
+    }
 
     if (mem_size < sizeof(unsorted_list)) {
 
@@ -13,7 +18,6 @@ unsorted_list* unsorted_list_init(void* mem, size_t mem_size) {
 
     list_head_init(&ul->head);
     ul->list_nodes = 0;
-    ul->size = sizeof(unsorted_list);
 
     return ul;
 }
@@ -32,8 +36,13 @@ int unsorted_list_stop(list_node *node) {
 
 list_node* unsorted_list_get(unsorted_list* ul, 
                              struct timeval* last_timestamp, 
-                             struct timeval* now_timestamp, 
-                             bool (*is_expire_node)(const list_node*, struct timeval*)) {
+                             struct timeval* now_timestamp) {
+
+    if (NULL == ul || NULL == last_timestamp || 
+        NULL == now_timestamp) {
+            return NULL;
+    }    
+
     list_node *node;
     list_node *next;
 

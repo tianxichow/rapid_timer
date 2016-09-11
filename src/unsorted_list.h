@@ -5,14 +5,14 @@
 #include "stdint.h"
 #include "stdbool.h"
 #include "stdio.h"
-#include "list_node.h"
 #include <sys/time.h>
+
+#include "list_node.h"
 
 typedef struct unsorted_list {
 
     list_node head;
     uint32_t list_nodes;
-    size_t size;
 }unsorted_list;
 
 unsorted_list* unsorted_list_init(void* mem, size_t mem_size);
@@ -23,8 +23,7 @@ int unsorted_list_stop(list_node *node);
 
 list_node* unsorted_list_get(unsorted_list* ul, 
                              struct timeval* last_timestamp, 
-                             struct timeval* now_timestamp, 
-                             bool (*is_expire_node)(const list_node*, struct timeval*));
+                             struct timeval* now_timestamp);
 
 
 #endif

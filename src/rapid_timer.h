@@ -6,8 +6,8 @@
 *********************************************/
 
 
-#ifndef _RAPID_TIMER_H_
-#define _RAPID_TIMER_H_
+#ifndef RAPID_TIMER_H_
+#define RAPID_TIMER_H_
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -18,14 +18,23 @@
 #include "timer_node.h"
 
 
-
+// for scheme
 #define UNSORTED_LIST                       0
 #define SORTED_LIST                         1
 #define RBTREE                              2
-#define HASHED_WHEEL_UNSORTED_LIST          3
-#define HASHED_WHEEL_SORTED_LIST            4
+#define WHEEL_UNSORTED_LIST                 3
+#define WHEEL_SORTED_LIST                   4
 #define HIERARCHICAL_WHEEL                  5
 #define MAX_SCHEME_NUMS                     6
+
+// for persist_type
+#define PROCESS_PERSIST                     0
+#define KERNEL_PERSIST                      1
+
+// for is_repeate
+#define ONESHOT                             0
+#define REPEATE                             1
+
 
 #define timer_id                            uint32_t 
 #define DEFAULT_TIMER_NUMS                  1000
@@ -56,7 +65,7 @@ typedef struct rapid_timer {
 
 rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
                               void* mem, size_t mem_size, 
-                              bool reuse);
+                              int persist_type);
 
 int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp,
                       struct timeval* interval, bool is_repeate, 
