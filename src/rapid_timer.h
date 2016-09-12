@@ -16,7 +16,7 @@
 
 #include "list_node.h"
 #include "timer_node.h"
-
+#include "scheme.h"
 
 // for scheme
 #define UNSORTED_LIST                       0
@@ -58,6 +58,7 @@ typedef struct rapid_timer {
     struct timeval last_tick;
 
     void* scheme;
+    const struct scheme_operations* sops;
 
     char err_msg[1024];
 

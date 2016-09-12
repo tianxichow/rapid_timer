@@ -19,17 +19,17 @@ all: $(TARGETS) example
 
 %.o: %.c
 	@if (gcc $(CFLAG) -c $< -o $@);then \
-		echo "$@ $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)";\
+		echo -e "$@ $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)";\
 	else \
-		echo "$@ $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
+		echo -e "$@ $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
 		exit 1;\
 	fi
 
 $(TARGETS):$(LIBOBJS)
 	@if (ar rcs $@ $^);then \
-		echo "$@ $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)";\
+		echo -e "$@ $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)";\
 	else \
-		echo "$@ $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
+		echo -e "$@ $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
 		exit 1; \
 	fi
 	@mkdir $(OBJSDIR) 
@@ -38,15 +38,15 @@ $(TARGETS):$(LIBOBJS)
 example:FORCE
 	@$(foreach DEMO_TARGET,$(DEMO_TARGETS),\
 		if (gcc $(CFLAG) -c example/$(DEMO_TARGET).c -o example/$(DEMO_TARGET).o);then \
-			echo "example/$(DEMO_TARGET).o $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)"; \
+			echo -e "example/$(DEMO_TARGET).o $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)"; \
 		else \
-			echo "example/$(DEMO_TARGET).o $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
+			echo -e "example/$(DEMO_TARGET).o $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
 			exit 1; \
 		fi; \
 		if (gcc $(CFLAG) example/$(DEMO_TARGET).o librapid_timer.a -o example/$(DEMO_TARGET)); then \
-			echo "example/$(DEMO_TARGET) $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)"; \
+			echo -e "example/$(DEMO_TARGET) $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)"; \
 		else \
-			echo "example/$(DEMO_TARGET) $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
+			echo -e "example/$(DEMO_TARGET) $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
 			exit 1; \
 		fi; \
 	)

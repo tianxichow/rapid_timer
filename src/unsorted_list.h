@@ -8,6 +8,7 @@
 #include <sys/time.h>
 
 #include "list_node.h"
+#include "scheme.h"
 
 typedef struct unsorted_list {
 
@@ -15,14 +16,15 @@ typedef struct unsorted_list {
     uint32_t list_nodes;
 }unsorted_list;
 
-unsorted_list* unsorted_list_init(void* mem, size_t mem_size);
+extern const struct scheme_operations unsorted_list_operations;
 
-int unsorted_list_start(unsorted_list *ul, list_node *node);
+int unsorted_list_init(void* mem, size_t mem_size);
+
+int unsorted_list_start(list_node *node);
 
 int unsorted_list_stop(list_node *node);
 
-list_node* unsorted_list_get(unsorted_list* ul, 
-                             struct timeval* last_timestamp, 
+list_node* unsorted_list_get(struct timeval* last_timestamp, 
                              struct timeval* now_timestamp);
 
 

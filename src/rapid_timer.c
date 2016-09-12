@@ -10,27 +10,9 @@
 #include "errno.h"
 
 #include "unsorted_list.h"
+#include "wheel_unsorted_list.h"
 
 #define MAGIC_NUM           1024
-
-size_t scheme_size(rapid_timer* rt) {
-    
-    if (NULL == rt) {
-     
-        printf("rapid_timer is NULL, scheme_size failed\n");
-        return -1;
-    }
-
-    switch(rt->scheme_id) {
-
-        case UNSORTED_LIST:
-            return sizeof(unsorted_list);
-
-    }
-
-    return 0;
-
-}
 
 int scheme_init(rapid_timer* rt) {
 
@@ -40,22 +22,27 @@ int scheme_init(rapid_timer* rt) {
         return -1;
     }
 
+    int ret = 0;
+
     void *scheme_mem = rt->mem + sizeof(rapid_timer);
     size_t scheme_mem_size = rt->mem_size - sizeof(rapid_timer);
 
     switch(rt->scheme_id) {
 
         case UNSORTED_LIST:
-
-            rt->scheme = unsorted_list_init(scheme_mem,  scheme_mem_size);
-            
-            if (NULL == rt->scheme) {
-                return -1;
-            }
-
+            rt->sops = &unsorted_list_operations;
+            break;
+        case WHEEL_UNSORTED_LIST:
+            rt->sops = &wheel_unsorted_list_operations;
             break;
         default:
             break;
+    }
+            
+    ret = rt->sops->scheme_init(scheme_mem,  scheme_mem_size);
+            
+    if (0 != ret) {
+        return -1;
     }
 
     return 0;
@@ -69,8 +56,8 @@ int free_nodes_init(rapid_timer* rt) {
         return -1;
     }
 
-    timer_node* timer_nodes = rt->mem + sizeof(rapid_timer) + scheme_size(rt);
-    size_t tn_mem_size = rt->mem_size - sizeof(rapid_timer) - scheme_size(rt);
+    timer_node* timer_nodes = rt->mem + sizeof(rapid_timer) + rt->sops->size;
+    size_t tn_mem_size = rt->mem_size - sizeof(rapid_timer) - rt->sops->size;
 
     if (tn_mem_size < sizeof(timer_node)) {
 
@@ -224,21 +211,13 @@ int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp,
 
     int ret = 0;
 
-    switch(rt->scheme_id) {
+    ret = rt->sops->scheme_start(node);
 
-        case UNSORTED_LIST:
-
-            ret = unsorted_list_start((unsorted_list*)rt->scheme, node);
-            
-            if (0 != ret) {
-                timer_node_init(tn);
-                list_add_tail(&tn->node, &rt->free_timer_nodes);
-                return -1;
-            }
-
-            break;
-        default:
-            break;
+    if (0 != ret) {
+     
+        timer_node_init(tn);
+        list_add_tail(&tn->node, &rt->free_timer_nodes);
+        return -1;
     }
 
     if (NULL != id) {
@@ -262,20 +241,11 @@ int repid_timer_stop(rapid_timer *rt, timer_id id) {
         return -1;
     }
 
-    switch(rt->scheme_id) {
+    timer_node* tn = &rt->timer_nodes[id];
 
-        case UNSORTED_LIST:
-        {
-            timer_node* tn = &rt->timer_nodes[id];
-
-            unsorted_list_stop(&tn->node);               
-            timer_node_init(tn);
-            list_add_tail(&tn->node, &rt->free_timer_nodes);
-            break;
-        }
-        default:
-            break;
-    }
+    rt->sops->scheme_stop(&tn->node);
+    timer_node_init(tn);
+    list_add_tail(&tn->node, &rt->free_timer_nodes);
 
     return 0;
 }
@@ -290,48 +260,38 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
 
     int ret = 0;
 
-    switch(rt->scheme_id) {
-
-        case UNSORTED_LIST:
-        {
-            do {
-                list_node* node = unsorted_list_get((unsorted_list*)rt->scheme,
-                                                    &rt->last_tick,
-                                                    now_timestamp);
-                if (NULL == node) {
-                    break;
-                }
-
-                timer_node* tn = (timer_node*)node->entity;
-
-                if (NULL != tn->action_handler) {
-                    tn->action_handler(tn->action_data);
-                } 
-
-                if (tn->is_repeate) {
-    
-                    tn->seq = rt->sequence++;
-                    tn->expire.tv_sec = now_timestamp->tv_sec + tn->interval.tv_sec;
-                    tn->expire.tv_usec = now_timestamp->tv_usec + tn->interval.tv_usec;
-
-                    ret = unsorted_list_start((unsorted_list*)rt->scheme, node);
-            
-                    if (0 != ret) {
-                        timer_node_init(tn);
-                        list_add_tail(&tn->node, &rt->free_timer_nodes);
-                        return -1;
-                    }
-
-                } else {
-                    timer_node_init(tn);
-                    list_add_tail(&tn->node, &rt->free_timer_nodes);
-                }
-
-            } while (1);
+    while (1) {
+                
+        list_node* node = rt->sops->scheme_get(&rt->last_tick, now_timestamp);
+                
+        if (NULL == node) {
             break;
         }
-        default:
-            break;
+
+        timer_node* tn = (timer_node*)node->entity;
+
+        if (NULL != tn->action_handler) {
+            tn->action_handler(tn->action_data);
+        } 
+
+        if (tn->is_repeate) {
+    
+            tn->seq = rt->sequence++;
+            tn->expire.tv_sec = now_timestamp->tv_sec + tn->interval.tv_sec;
+            tn->expire.tv_usec = now_timestamp->tv_usec + tn->interval.tv_usec;
+
+            ret = rt->sops->scheme_start(node);
+            
+            if (0 != ret) {
+                timer_node_init(tn);
+                list_add_tail(&tn->node, &rt->free_timer_nodes);
+                return -1;
+            }
+
+        } else {
+            timer_node_init(tn);
+            list_add_tail(&tn->node, &rt->free_timer_nodes);
+        }
     }
     
     rt->last_tick.tv_sec = now_timestamp->tv_sec;

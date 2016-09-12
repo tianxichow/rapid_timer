@@ -1,4 +1,6 @@
 
+#include "stdio.h"
+
 #include "timer_node.h"
 
 void timer_node_init(timer_node* tn) {
@@ -14,10 +16,12 @@ bool is_expire_node(const list_node* node, struct timeval* now_timestamp) {
     struct timeval* expire = &((timer_node*)node->entity)->expire;
    
     if (expire->tv_sec < now_timestamp->tv_sec) {
+        printf("expire %lu %lu\n", expire->tv_sec, now_timestamp->tv_sec);
         return true;
     }
   
     if (expire->tv_sec == now_timestamp->tv_sec && expire->tv_usec < now_timestamp->tv_usec) {
+        printf("expire %lu %lu\n", expire->tv_usec, now_timestamp->tv_usec);
         return true;
     }
   
@@ -28,5 +32,10 @@ uint32_t get_slot(const list_node* node, uint32_t slot_nums) {
 
     struct timeval* expire = &((timer_node*)node->entity)->expire;
 
-    return ((expire->tv_sec % slot_nums) * 1000000 + expire->tv_usec) % slot_nums;
+    uint32_t slot = ((expire->tv_sec % slot_nums) * 1000000 + expire->tv_usec) % slot_nums;
+
+    printf("get slot %u\n", slot);
+
+    return slot;
+    //return ((expire->tv_sec % slot_nums) * 1000000 + expire->tv_usec) % slot_nums;
 }
