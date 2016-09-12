@@ -34,7 +34,7 @@ void timer_node_init(timer_node* tn);
 
 bool is_expire_node(const list_node* node, struct timeval* now_timestamp);
 
-uint32_t get_slot(const list_node* node, uint32_t slot_nums);
+uint32_t get_slot(const list_node* node, uint32_t accuracy, uint32_t slot_nums);
 
 #endif
 

@@ -10,6 +10,8 @@
 #include "scheme.h"
 
 #define WHEEL_SLOT_NUMS    (1 << 8)
+#define ACCURACY            1 //microsecond
+#define CONV                1000000
 
 typedef struct wheel_unsorted_list {
 
