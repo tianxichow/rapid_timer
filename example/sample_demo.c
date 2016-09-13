@@ -11,9 +11,9 @@ int timer_action(const void* data) {
 
 int main() {
 
-    rapid_timer* rt = rapid_timer_init(WHEEL_UNSORTED_LIST, 0, NULL, 0, PROCESS_PERSIST);
+    int ret = rapid_timer_init(UNSORTED_LIST, 1, NULL, 0, PROCESS_PERSIST);
 
-    if (NULL == rt) {
+    if (0 != ret) {
         printf("rapid_timer_init failed\n");
         return -1;
     }
@@ -36,7 +36,7 @@ int main() {
     interval.tv_sec = 2;
     interval.tv_usec = 0;
 
-    int ret = rapid_timer_start(rt, &now, &interval, REPEATE, timer_action, NULL, &id);
+    ret = rapid_timer_start(&now, &interval, REPEATE, timer_action, NULL, &id);
 
     if (0 != ret) {
         return 1;
@@ -50,7 +50,7 @@ int main() {
         sleep(1);
         printf("tick %d\n", i);
         gettimeofday(&now, NULL);
-        ret = repid_timer_tick(rt, &now);
+        ret = repid_timer_tick(&now);
 
         if (0 != ret) {
             printf("repid_timer_tick failed\n");
