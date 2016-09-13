@@ -30,15 +30,7 @@ bool is_expire_node(const list_node* node, struct timeval* now_timestamp) {
 
 uint32_t get_slot(const list_node* node, uint32_t accuracy, uint32_t slot_nums) {
 
-    struct timeval* expire = &((timer_node*)node->entity)->expire;
-
-    if (accuracy > 1000000) {
-        return (expire->tv_sec / (accuracy / 1000000)) % slot_nums;
-    }
-    uint32_t slot = ((((expire->tv_sec % slot_nums) * 1000000 + expire->tv_usec)) / accuracy) % slot_nums;
-
-    printf("get slot %u\n", slot);
-
-    return slot;
-    //return ((expire->tv_sec % slot_nums) * 1000000 + expire->tv_usec) % slot_nums;
+    uint64_t sec = ((timer_node*)node->entity)->expire.tv_sec;
+    uint64_t usec = ((timer_node*)node->entity)->expire.tv_usec;
+    return ((sec * 1000000) + usec) / accuracy % slot_nums;
 }

@@ -7,25 +7,16 @@ wheel_unsorted_list * wul;
 static inline uint32_t time_gap(struct timeval* last_timestamp, 
                                 struct timeval* now_timestamp) {
 
-    if (ACCURACY >= CONV) {
-        return (now_timestamp->tv_sec - last_timestamp->tv_sec) / (ACCURACY / CONV);
-    }
-
-    uint32_t gap = ((now_timestamp->tv_sec - last_timestamp->tv_sec) * CONV + (now_timestamp->tv_usec - last_timestamp->tv_usec)) / ACCURACY;
-    return gap > WHEEL_SLOT_NUMS ? WHEEL_SLOT_NUMS : gap;
+    return ((now_timestamp->tv_sec - last_timestamp->tv_sec) * CONV + 
+            (now_timestamp->tv_usec - last_timestamp->tv_usec)) / ACCURACY;
 }
 
 static inline uint32_t get_time_slot(struct timeval* timestamp) {
 
-    uint32_t slot = 0;
-
-    if (ACCURACY >= CONV) {
-        slot = (timestamp->tv_sec / (ACCURACY/CONV)) % WHEEL_SLOT_NUMS;
-    } else {
-        slot = (((timestamp->tv_sec % WHEEL_SLOT_NUMS) * CONV + timestamp->tv_usec) / ACCURACY) % WHEEL_SLOT_NUMS;
-    }
-
-    return slot;
+    // if long is 32bit, will not truncate
+    uint64_t sec = timestamp->tv_sec;
+    uint64_t usec = timestamp->tv_usec;
+    return (sec * CONV + usec) / ACCURACY % WHEEL_SLOT_NUMS;
 }
 
 int wheel_unsorted_list_init(void* mem, size_t mem_size) {
