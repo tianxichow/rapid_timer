@@ -30,8 +30,8 @@ int main() {
     while (k++ < 10000);
     gettimeofday(&now1, NULL);
 
-    printf("%lu %lu\n", now.tv_sec, now.tv_usec);
-    printf("%lu %lu\n", now1.tv_sec, now1.tv_usec);
+    printf("%lu %u\n", now.tv_sec, now.tv_usec);
+    printf("%lu %u\n", now1.tv_sec, now1.tv_usec);
 
     interval.tv_sec = 2;
     interval.tv_usec = 0;

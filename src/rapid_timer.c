@@ -8,12 +8,14 @@
 #include "rapid_timer.h"  
 #include "string.h"
 #include "errno.h"
+#include <sys/time.h>
 
 #include "unsorted_list.h"
 #include "sorted_list.h"
 #include "wheel_unsorted_list.h"
 
 #define MAGIC_NUM           1024
+#define USEC_PER_SEC        1000000ull
 
 static inline uint64_t __timeval_to_u64(struct timeval* timestamp) {
 
