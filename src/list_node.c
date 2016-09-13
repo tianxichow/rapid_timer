@@ -9,15 +9,15 @@
 
 
 void list_head_init(list_node *head) {
-	head->next = head;
-	head->prev = head;
-	head->entity = NULL;
+    head->next = head;
+    head->prev = head;
+    head->entity = NULL;
 }
 
 void list_node_init(list_node *node) {
-	node->next = NULL;
-	node->prev = NULL;
-	node->entity = NULL;
+    node->next = NULL;
+    node->prev = NULL;
+    node->entity = NULL;
 }
 
 int list_is_empty(const list_node *head) {
@@ -31,11 +31,11 @@ int list_is_last(const list_node *node, const list_node *head) {
 }
 
 static inline void __list_add(list_node *node, list_node *prev, list_node *next) {
-	
+    
     next->prev = node;
-	node->next = next;
-	node->prev = prev;
-	prev->next = node;
+    node->next = next;
+    node->prev = prev;
+    prev->next = node;
 }
 
 void list_add(list_node *node, list_node *head) {
@@ -48,20 +48,20 @@ void list_add_tail(list_node *node, list_node *head) {
 
 static inline void __list_del(list_node * prev, list_node * next)
 {
-	next->prev = prev;
-	prev->next = next;
+    next->prev = prev;
+    prev->next = next;
 }
 
 void list_del(list_node *node) {
 
-	__list_del(node->prev, node->next);
-	node->next = NULL;
-	node->prev = NULL;
+    __list_del(node->prev, node->next);
+    node->next = NULL;
+    node->prev = NULL;
 }
 
 void list_move(list_node *node, list_node *head) {
-	
+    
     __list_del(node->prev, node->next);
-	list_add(node, head);
+    list_add(node, head);
 }
 
