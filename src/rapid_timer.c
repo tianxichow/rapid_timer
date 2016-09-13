@@ -10,6 +10,7 @@
 #include "errno.h"
 
 #include "unsorted_list.h"
+#include "sorted_list.h"
 #include "wheel_unsorted_list.h"
 
 #define MAGIC_NUM           1024
@@ -41,6 +42,9 @@ int scheme_init(rapid_timer* rt) {
 
         case UNSORTED_LIST:
             rt->sops = &unsorted_list_operations;
+            break;
+        case SORTED_LIST:
+            rt->sops = &sorted_list_operations;
             break;
         case WHEEL_UNSORTED_LIST:
             rt->sops = &wheel_unsorted_list_operations;
@@ -122,10 +126,8 @@ rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
 
             rt = (rapid_timer*)mem;
 
-            if (MAGIC_NUM != rt->magic_num || 
-                    scheme_id != rt->scheme_id || 
-                    mem != rt->mem ||
-                    mem_size != rt->mem_size) {
+            if (MAGIC_NUM != rt->magic_num || scheme_id != rt->scheme_id || 
+                mem != rt->mem || mem_size != rt->mem_size) {
 
                 printf("reuse failed\n");
                 return NULL;
