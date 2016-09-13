@@ -44,16 +44,11 @@ int unsorted_list_stop(list_node *node) {
     return 0;
 }
 
-list_node* unsorted_list_get(struct timeval* last_timestamp, 
-                             struct timeval* now_timestamp) {
+list_node* unsorted_list_get(uint64_t last_timestamp, uint64_t  now_timestamp){
 
     if (NULL == ul) {
         return NULL;
-    }
-
-    if (NULL == last_timestamp || NULL == now_timestamp) {
-        return NULL;
-    }    
+    } 
 
     list_node *node;
     list_node *next;

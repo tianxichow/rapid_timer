@@ -14,6 +14,16 @@
 
 #define MAGIC_NUM           1024
 
+static inline uint64_t __timeval_to_u64(struct timeval* timestamp) {
+
+    uint64_t timestamp_sce = timestamp->tv_sec;
+    return (timestamp_sce * USEC_PER_SEC) + timestamp->tv_usec;
+}
+
+static inline uint64_t __reduction(struct timeval* timestamp, uint32_t accuracy) {
+    return __timeval_to_u64(timestamp) / accuracy;
+}
+
 int scheme_init(rapid_timer* rt) {
 
     if (NULL == rt) {
@@ -201,10 +211,8 @@ int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp,
     // fill timer_node
     timer_node* tn = node->entity;
     tn->seq = rt->sequence++;
-    tn->interval.tv_sec = interval->tv_sec;
-    tn->interval.tv_usec = interval->tv_usec;
-    tn->expire.tv_sec = now_timestamp->tv_sec + interval->tv_sec;
-    tn->expire.tv_usec = now_timestamp->tv_usec + interval->tv_usec;
+    tn->interval = __reduction(interval, rt->accuracy);
+    tn->expire = __reduction(now_timestamp, rt->accuracy) + tn->interval;
     tn->is_repeate = is_repeate;
     tn->action_handler = action_handler;
     tn->action_data = action_data;
@@ -260,9 +268,12 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
 
     int ret = 0;
 
+    uint64_t last = __reduction(&rt->last_tick, rt->accuracy);
+    uint64_t now = __reduction(now_timestamp, rt->accuracy);
+
     while (1) {
                 
-        list_node* node = rt->sops->scheme_get(&rt->last_tick, now_timestamp);
+        list_node* node = rt->sops->scheme_get(last, now);
                 
         if (NULL == node) {
             break;
@@ -277,8 +288,7 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
         if (tn->is_repeate) {
     
             tn->seq = rt->sequence++;
-            tn->expire.tv_sec = now_timestamp->tv_sec + tn->interval.tv_sec;
-            tn->expire.tv_usec = now_timestamp->tv_usec + tn->interval.tv_usec;
+            tn->expire = now + tn->interval;
 
             ret = rt->sops->scheme_start(node);
             

@@ -4,20 +4,6 @@
 
 wheel_unsorted_list * wul;
 
-static inline uint32_t time_gap(struct timeval* last_timestamp, 
-                                struct timeval* now_timestamp) {
-
-    return ((now_timestamp->tv_sec - last_timestamp->tv_sec) * CONV + 
-            (now_timestamp->tv_usec - last_timestamp->tv_usec)) / ACCURACY;
-}
-
-static inline uint32_t get_time_slot(struct timeval* timestamp) {
-
-    // if long is 32bit, will not truncate
-    uint64_t sec = timestamp->tv_sec;
-    uint64_t usec = timestamp->tv_usec;
-    return (sec * CONV + usec) / ACCURACY % WHEEL_SLOT_NUMS;
-}
 
 int wheel_unsorted_list_init(void* mem, size_t mem_size) {
 
@@ -51,7 +37,7 @@ int wheel_unsorted_list_start(list_node *node) {
         return -1;
     }
 
-    list_add_tail(node, &wul->wheel[get_slot(node, ACCURACY, WHEEL_SLOT_NUMS)]);
+    list_add_tail(node, &wul->wheel[get_slot(node, WHEEL_SLOT_NUMS)]);
     return 0;
 }
 
@@ -65,20 +51,16 @@ int wheel_unsorted_list_stop(list_node *node) {
     return 0;
 }
 
-list_node* wheel_unsorted_list_get(struct timeval* last_timestamp, 
-                                   struct timeval* now_timestamp) {
+list_node* wheel_unsorted_list_get(uint64_t last_timestamp, 
+                                    uint64_t now_timestamp) {
 
     if (NULL == wul) {
         return NULL;
     }
 
-    if (NULL == last_timestamp || NULL == now_timestamp) {
-        return NULL;
-    }    
-
-    uint32_t last_slot = get_time_slot(last_timestamp);
-    uint32_t this_slot = get_time_slot(now_timestamp);
-    uint32_t gap = time_gap(last_timestamp, now_timestamp);
+    uint32_t last_slot = last_timestamp % WHEEL_SLOT_NUMS;
+    uint32_t this_slot = now_timestamp % WHEEL_SLOT_NUMS;
+    uint32_t gap = now_timestamp - last_timestamp;
     
     if (gap > this_slot) {
         this_slot = (last_slot - 1) % WHEEL_SLOT_NUMS;
@@ -112,7 +94,6 @@ list_node* wheel_unsorted_list_get(struct timeval* last_timestamp,
     }
 
     return NULL;
-    
 }
 
 const struct scheme_operations wheel_unsorted_list_operations = {

@@ -10,8 +10,6 @@
 #include "scheme.h"
 
 #define WHEEL_SLOT_NUMS    (1 << 8)
-#define ACCURACY            1 //microsecond
-#define CONV                1000000
 
 typedef struct wheel_unsorted_list {
 
@@ -28,8 +26,8 @@ int wheel_unsorted_list_start(list_node *node);
 
 int wheel_unsorted_list_stop(list_node *node);
 
-list_node* wheel_unsorted_list_get(struct timeval* last_timestamp, 
-                                   struct timeval* now_timestamp);
+list_node* wheel_unsorted_list_get(uint64_t last_timestamp, 
+                                    uint64_t now_timestamp);
 
 
 
