@@ -13,12 +13,15 @@
 
 #include "list_node.h"
 
+#define WHEEL_SLOT_NUMS    (1 << 8)
+
 struct scheme_operations {
 
-    int (*scheme_init)(void* mem, size_t mem_size);
-    int (*scheme_start)(list_node* node);
-    int (*scheme_stop)(list_node* node);
-    list_node* (*scheme_get)(uint64_t last_timestamp, uint64_t now_timestamp);
+    void* (*scheme_init)(void* mem, size_t mem_size);
+    int (*scheme_start)(void* scheme, list_node* node);
+    int (*scheme_stop)(void* scheme, list_node* node);
+    int (*scheme_get)(void* scheme, uint64_t last_timestamp, 
+                      uint64_t now_timestamp, list_node* expire_head);
     size_t size;
 };
 

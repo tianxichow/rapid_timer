@@ -9,8 +9,6 @@
 #include "list_node.h"
 #include "scheme.h"
 
-#define WHEEL_SLOT_NUMS    (1 << 8)
-
 typedef struct wheel_unsorted_list {
 
     list_node wheel[WHEEL_SLOT_NUMS];
@@ -20,14 +18,14 @@ typedef struct wheel_unsorted_list {
 
 extern const struct scheme_operations wheel_unsorted_list_operations; 
 
-int wheel_unsorted_list_init(void* mem, size_t mem_size);
+void* wheel_unsorted_list_init(void* mem, size_t mem_size);
 
-int wheel_unsorted_list_start(list_node *node);
+int wheel_unsorted_list_start(void* scheme, list_node *node);
 
-int wheel_unsorted_list_stop(list_node *node);
+int wheel_unsorted_list_stop(void* scheme, list_node *node);
 
-list_node* wheel_unsorted_list_get(uint64_t last_timestamp, 
-                                    uint64_t now_timestamp);
+int wheel_unsorted_list_get(void* scheme, uint64_t last_timestamp, 
+                            uint64_t now_timestamp, list_node* expire_head);
 
 
 

@@ -2,50 +2,52 @@
 #include "sorted_list.h"
 #include "timer_node.h"
 
-sorted_list *sl;
 
-int sorted_list_init(void* mem, size_t mem_size) {
+void* sorted_list_init(void* mem, size_t mem_size) {
 
     if (NULL == mem) {
-        return -1;
+        return NULL;
     }
 
     if (mem_size < sizeof(sorted_list)) {
 
         printf("mem_size=%lu less than sorted_list\n", mem_size);
-        return -1;
+        return NULL;
     }
 
-    sl = (sorted_list*)mem;
+    sorted_list* sl = (sorted_list*)mem;
 
     list_head_init(&sl->head);
     sl->list_nodes = 0;
 
-    return 0;
+    return sl;
 }
 
-int sorted_list_start(list_node *node) {
+int sorted_list_start(void* scheme, list_node *node) {
 
-    if (NULL == sl) {
+    if (NULL == scheme) {
         return -1;
     }
 
-	list_node *check_node;
-    list_node *next;
+    sorted_list *sl = (sorted_list*)scheme;
 
-	list_for_each_safe(check_node, next, &sl->head) {
+	list_node *check_node;
+
+	list_for_each(check_node, &sl->head) {
 		if (!timer_node_later_than(node, check_node)) {
 			list_add_tail(node, check_node);
-			break;
+			return 0;
 		}
 	}
+
+    list_add_tail(node, &sl->head);
 
     return 0;
 }
 
-int sorted_list_stop(list_node *node) {
+int sorted_list_stop(void* scheme, list_node *node) {
 
-    if (NULL == sl) {
+    if (NULL == scheme) {
         return -1;
     }
 
@@ -53,11 +55,14 @@ int sorted_list_stop(list_node *node) {
     return 0;
 }
 
-list_node* sorted_list_get(uint64_t last_timestamp, uint64_t  now_timestamp){
+int sorted_list_get(void* scheme, uint64_t last_timestamp, 
+                    uint64_t now_timestamp, list_node* expire_head) {
 
-    if (NULL == sl) {
-        return NULL;
+    if (NULL == scheme) {
+        return -1;
     } 
+    
+    sorted_list *sl = (sorted_list*)scheme;
 
     list_node *node;
     list_node *next;
@@ -68,11 +73,10 @@ list_node* sorted_list_get(uint64_t last_timestamp, uint64_t  now_timestamp){
             continue;
         }
 
-        sorted_list_stop(node);
-        return node;
+        list_move_tail(node, expire_head);
     }
 
-    return NULL;
+    return 0;
 }
 
 const struct scheme_operations sorted_list_operations = {

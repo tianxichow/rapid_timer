@@ -65,3 +65,9 @@ void list_move(list_node *node, list_node *head) {
     list_add(node, head);
 }
 
+void list_move_tail(list_node *node, list_node *head) {
+ 
+    __list_del(node->prev, node->next); 
+    list_add_tail(node, head); 
+}
+

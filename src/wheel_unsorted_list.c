@@ -2,22 +2,21 @@
 #include "wheel_unsorted_list.h"
 #include "timer_node.h"
 
-wheel_unsorted_list * wul;
 
 
-int wheel_unsorted_list_init(void* mem, size_t mem_size) {
+void* wheel_unsorted_list_init(void* mem, size_t mem_size) {
 
     if (NULL == mem) {
-        return -1;
+        return NULL;
     }
 
     if (mem_size < sizeof(wheel_unsorted_list)) {
 
         printf("mem_size=%lu less than wheel_unsorted_list_init\n", mem_size);
-        return -1;
+        return NULL;
     }
 
-    wul = (wheel_unsorted_list*)mem;
+    wheel_unsorted_list* wul = (wheel_unsorted_list*)mem;
 
     int i = 0;
 
@@ -28,35 +27,39 @@ int wheel_unsorted_list_init(void* mem, size_t mem_size) {
 
     wul->list_nodes = 0;
 
-    return 0;
+    return wul;
 }
 
-int wheel_unsorted_list_start(list_node *node) {
+int wheel_unsorted_list_start(void* scheme, list_node *node) {
     
-    if (NULL == wul) {
+    if (NULL == scheme) {
         return -1;
     }
+
+    wheel_unsorted_list* wul = (wheel_unsorted_list*)scheme;
 
     list_add_tail(node, &wul->wheel[get_slot(node, WHEEL_SLOT_NUMS)]);
     return 0;
 }
 
-int wheel_unsorted_list_stop(list_node *node) {
+int wheel_unsorted_list_stop(void* scheme, list_node *node) {
 
-    if (NULL == wul) {
+    if (NULL == scheme) {
         return -1;
     }
-
+    
     list_del(node);
     return 0;
 }
 
-list_node* wheel_unsorted_list_get(uint64_t last_timestamp, 
-                                    uint64_t now_timestamp) {
+int wheel_unsorted_list_get(void* scheme, uint64_t last_timestamp, 
+                            uint64_t now_timestamp, list_node* expire_head) {
 
-    if (NULL == wul) {
-        return NULL;
+    if (NULL == scheme) {
+        return -1;
     }
+    
+    wheel_unsorted_list* wul = (wheel_unsorted_list*)scheme;
 
     uint32_t last_slot = last_timestamp % WHEEL_SLOT_NUMS;
     uint32_t this_slot = now_timestamp % WHEEL_SLOT_NUMS;
@@ -81,8 +84,7 @@ list_node* wheel_unsorted_list_get(uint64_t last_timestamp,
                 continue;
             }
 
-            wheel_unsorted_list_stop(node);
-            return node;
+            list_move_tail(node, expire_head);
         }
 
         ++last_slot;
@@ -93,7 +95,7 @@ list_node* wheel_unsorted_list_get(uint64_t last_timestamp,
 
     }
 
-    return NULL;
+    return 0;
 }
 
 const struct scheme_operations wheel_unsorted_list_operations = {

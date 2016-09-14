@@ -32,6 +32,8 @@ void list_del(list_node *node);
 
 void list_move(list_node *node, list_node *head);
 
+void list_move_tail(list_node *node, list_node *head);
+
 #define list_for_each(pos, head) \
     for (pos = (head)->next; NULL != pos->next && pos != (head); \
             pos = pos->next) 

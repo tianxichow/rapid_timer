@@ -11,9 +11,11 @@ int timer_action(const void* data) {
 
 int main() {
 
-    int ret = rapid_timer_init(UNSORTED_LIST, 1, NULL, 0, PROCESS_PERSIST);
+    int ret = 0;
 
-    if (0 != ret) {
+    rapid_timer* rt = rapid_timer_init(WHEEL_SORTED_LIST, 1, NULL, 0, PROCESS_PERSIST);
+
+    if (NULL == rt) {
         printf("rapid_timer_init failed\n");
         return -1;
     }
@@ -21,22 +23,15 @@ int main() {
     printf("rapid_timer_init success\n");
 
     struct timeval now;
-    struct timeval now1;
     struct timeval interval;
     timer_id id;
 
     gettimeofday(&now, NULL);
-    int k = 1;
-    while (k++ < 10000);
-    gettimeofday(&now1, NULL);
-
-    printf("%lu %u\n", now.tv_sec, now.tv_usec);
-    printf("%lu %u\n", now1.tv_sec, now1.tv_usec);
 
     interval.tv_sec = 2;
     interval.tv_usec = 0;
 
-    ret = rapid_timer_start(&now, &interval, REPEATE, timer_action, NULL, &id);
+    ret = rapid_timer_start(rt, &now, &interval, REPEATE, timer_action, NULL, &id);
 
     if (0 != ret) {
         return 1;
@@ -50,7 +45,7 @@ int main() {
         sleep(1);
         printf("tick %d\n", i);
         gettimeofday(&now, NULL);
-        ret = repid_timer_tick(&now);
+        ret = repid_timer_tick(rt, &now);
 
         if (0 != ret) {
             printf("repid_timer_tick failed\n");

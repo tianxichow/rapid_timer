@@ -13,11 +13,12 @@
 #include "unsorted_list.h"
 #include "sorted_list.h"
 #include "wheel_unsorted_list.h"
+#include "wheel_sorted_list.h"
 
 #define MAGIC_NUM           1024
 #define USEC_PER_SEC        1000000ull
 
-rapid_timer* rt;
+
 
 static inline uint64_t __timeval_to_u64(struct timeval* timestamp) {
 
@@ -53,11 +54,14 @@ int scheme_init(rapid_timer* rt) {
         case WHEEL_UNSORTED_LIST:
             rt->sops = &wheel_unsorted_list_operations;
             break;
+        case WHEEL_SORTED_LIST:
+            rt->sops = &wheel_sorted_list_operations;
+            break;
         default:
             break;
     }
             
-    ret = rt->sops->scheme_init(scheme_mem,  scheme_mem_size);
+    rt->scheme = rt->sops->scheme_init(scheme_mem,  scheme_mem_size);
             
     if (0 != ret) {
         return -1;
@@ -100,16 +104,17 @@ int free_nodes_init(rapid_timer* rt) {
     return 0;
 }
 
-int rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
-                     void* mem, size_t mem_size, int persist_type) {
+rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
+                              void* mem, size_t mem_size, int persist_type) {
 
     if (scheme_id < UNSORTED_LIST || scheme_id > HIERARCHICAL_WHEEL) {
 
         printf("scheme_id=%d error\n", scheme_id);
-        return -1;
+        return NULL;
     }
 
     int ret;
+    rapid_timer* rt = NULL;
     void* timer_mem = NULL;
     size_t timer_size;
 
@@ -118,7 +123,7 @@ int rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
         if (mem_size < sizeof(rapid_timer)) {
 
             printf("mem_size=%lu less than rapid_timer\n", mem_size);
-            return -1;
+            return NULL;
         }
 
         timer_mem = mem;
@@ -132,7 +137,7 @@ int rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
                 mem != rt->mem || mem_size != rt->mem_size) {
 
                 printf("reuse failed\n");
-                return -1;
+                return NULL;
             }
 
             return rt;
@@ -147,7 +152,7 @@ int rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
         if (NULL == timer_mem) {
 
             printf("malloc error: %s\n", strerror(errno));
-            return -1;
+            return NULL;
         }
 
     }
@@ -173,7 +178,7 @@ int rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
             free(timer_mem);
         }
 
-        return -1;
+        return NULL;
     }
 
     ret = free_nodes_init(rt);
@@ -184,15 +189,15 @@ int rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
             free(timer_mem);
         }
 
-        return -1;
+        return NULL;
     }
 
-    return 0;
+    return rt;
 }
 
 
-int rapid_timer_start(struct timeval* now_timestamp, struct timeval* interval, 
-                      bool is_repeate, 
+int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp, 
+                      struct timeval* interval, bool is_repeate, 
                       int (*action_handler)(const void*), void* action_data, 
                       timer_id *id) {
 
@@ -223,7 +228,7 @@ int rapid_timer_start(struct timeval* now_timestamp, struct timeval* interval,
 
     int ret = 0;
 
-    ret = rt->sops->scheme_start(node);
+    ret = rt->sops->scheme_start(rt->scheme, node);
 
     if (0 != ret) {
      
@@ -239,7 +244,7 @@ int rapid_timer_start(struct timeval* now_timestamp, struct timeval* interval,
     return 0;
 }
 
-int repid_timer_stop(timer_id id) {
+int repid_timer_stop(rapid_timer* rt, timer_id id) {
 
     if (NULL == rt) {
      
@@ -255,14 +260,14 @@ int repid_timer_stop(timer_id id) {
 
     timer_node* tn = &rt->timer_nodes[id];
 
-    rt->sops->scheme_stop(&tn->node);
+    rt->sops->scheme_stop(rt->scheme, &tn->node);
     timer_node_init(tn);
     list_add_tail(&tn->node, &rt->free_timer_nodes);
 
     return 0;
 }
 
-int repid_timer_tick(struct timeval* now_timestamp) {
+int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
 
     if (NULL == rt || NULL == now_timestamp) {
      
@@ -275,14 +280,16 @@ int repid_timer_tick(struct timeval* now_timestamp) {
     uint64_t last = __reduction(&rt->last_tick, rt->accuracy);
     uint64_t now = __reduction(now_timestamp, rt->accuracy);
 
-    while (1) {
-                
-        list_node* node = rt->sops->scheme_get(last, now);
-                
-        if (NULL == node) {
-            break;
-        }
+    list_node expire_head;
+    list_head_init(&expire_head);
+    
+    list_node* node;
+    list_node* next;
+    
+    ret = rt->sops->scheme_get(rt->scheme, last, now, &expire_head);
 
+    list_for_each_safe(node, next, &expire_head) {
+        
         timer_node* tn = (timer_node*)node->entity;
 
         if (NULL != tn->action_handler) {
@@ -296,7 +303,7 @@ int repid_timer_tick(struct timeval* now_timestamp) {
 
             printf("%lu %lu %lu\n", tn->expire, now, tn->interval);
 
-            ret = rt->sops->scheme_start(node);
+            ret = rt->sops->scheme_start(rt->scheme, node);
             
             if (0 != ret) {
                 timer_node_init(tn);
@@ -309,7 +316,7 @@ int repid_timer_tick(struct timeval* now_timestamp) {
             list_add_tail(&tn->node, &rt->free_timer_nodes);
         }
     }
-    
+
     rt->last_tick.tv_sec = now_timestamp->tv_sec;
     rt->last_tick.tv_usec = now_timestamp->tv_usec;
 
