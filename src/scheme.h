@@ -13,7 +13,13 @@
 
 #include "list_node.h"
 
-#define WHEEL_SLOT_NUMS    (1 << 8)
+
+#define WHEEL_SLOT_BITS                 12
+#define WHELL_ROOT_SLOT_BITS            16
+#define WHEEL_SLOT_NUMS                 (1 << WHEEL_SLOT_BITS)
+#define WHELL_ROOT_SLOT_NUMS            (1 << WHELL_ROOT_SLOT_BITS)
+#define WHEEL_SLOT_MARSK                (WHEEL_SLOT_NUMS - 1)
+#define WHELL_ROOT_SLOT_MARKS           (WHELL_ROOT_SLOT_NUMS - 1)
 
 struct scheme_operations {
 
