@@ -26,7 +26,7 @@ void* hierarchical_wheel_init(void* mem, size_t mem_size) {
 
     if (mem_size < sizeof(hierarchical_wheel)) {
 
-        printf("mem_size=%lu less than hierarchical_wheel_init\n", mem_size);
+        printf("mem_size=%lu less than size of hierarchical_wheel\n", mem_size);
         return NULL;
     }
 
@@ -66,9 +66,10 @@ int hierarchical_wheel_start(void* scheme, list_node *node) {
     int64_t interval = expire - hw->last_timestamp;
     
     list_node* head_node = NULL;
-    list_node* check_node;
 
-    if (interval < WHELL_ROOT_SLOT_NUMS) {
+    if (interval <= 0) {
+        head_node = hw->hw1 + (hw->last_timestamp & WHELL_ROOT_SLOT_MARKS);
+    } else if (interval < WHELL_ROOT_SLOT_NUMS) {
         int i = expire & WHELL_ROOT_SLOT_MARKS;
         head_node = hw->hw1 + i;
     } else if (interval < 1 << (WHELL_ROOT_SLOT_BITS + WHEEL_SLOT_BITS)) {
@@ -82,20 +83,11 @@ int hierarchical_wheel_start(void* scheme, list_node *node) {
         int i = (expire >> (WHELL_ROOT_SLOT_BITS + 2 * WHEEL_SLOT_BITS)) & 
                                                             WHEEL_SLOT_MARSK;
         head_node = hw->hw4 + i;
-    } else if (interval < 0) {
-        head_node = hw->hw1 + (hw->last_timestamp & WHELL_ROOT_SLOT_MARKS);
     } else {
         int i = (expire >> (WHELL_ROOT_SLOT_BITS + 3 * WHEEL_SLOT_BITS)) & 
                                                             WHEEL_SLOT_MARSK;
         head_node = hw->hw5 + i;
     }
-
-	list_for_each(check_node, head_node) {
-		if (!timer_node_later_than(node, check_node)) {
-			list_add_tail(node, check_node);
-			return 0;
-		}
-	}
 
     list_add_tail(node, head_node);
 
@@ -131,7 +123,7 @@ int hierarchical_wheel_get(void* scheme, uint64_t last_timestamp,
         if (!index && !cascade(hw, hw->hw2, 2) &&
                       !cascade(hw, hw->hw3, 3) &&
                       !cascade(hw, hw->hw4, 4) &&
-                      !cascade(hw, hw->hw5, 5));
+                      !cascade(hw, hw->hw5, 5)) {};
         
         list_for_each_safe(node, next, hw->hw1 + index) {
             list_move_tail(node, expire_head);

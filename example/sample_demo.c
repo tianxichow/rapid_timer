@@ -13,7 +13,7 @@ int main() {
 
     int ret = 0;
 
-    rapid_timer* rt = rapid_timer_init(WHEEL_SORTED_LIST, 1, NULL, 0, PROCESS_PERSIST);
+    rapid_timer* rt = rapid_timer_init(HIERARCHICAL_WHEEL, 1, NULL, 0, PROCESS_PERSIST);
 
     if (NULL == rt) {
         printf("rapid_timer_init failed\n");

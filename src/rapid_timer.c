@@ -14,6 +14,7 @@
 #include "sorted_list.h"
 #include "wheel_unsorted_list.h"
 #include "wheel_sorted_list.h"
+#include "hierarchical_wheel.h"
 
 #define MAGIC_NUM           1024
 #define USEC_PER_SEC        1000000ull
@@ -38,8 +39,6 @@ int scheme_init(rapid_timer* rt) {
         return -1;
     }
 
-    int ret = 0;
-
     void *scheme_mem = rt->mem + sizeof(rapid_timer);
     size_t scheme_mem_size = rt->mem_size - sizeof(rapid_timer);
 
@@ -57,13 +56,16 @@ int scheme_init(rapid_timer* rt) {
         case WHEEL_SORTED_LIST:
             rt->sops = &wheel_sorted_list_operations;
             break;
+        case HIERARCHICAL_WHEEL:
+            rt->sops = &hierarchical_wheel_operations;
+            break;
         default:
             break;
     }
             
     rt->scheme = rt->sops->scheme_init(scheme_mem,  scheme_mem_size);
             
-    if (0 != ret) {
+    if (NULL == rt->scheme) {
         return -1;
     }
 
@@ -113,7 +115,7 @@ rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
         return NULL;
     }
 
-    int ret;
+    int ret = 0;
     rapid_timer* rt = NULL;
     void* timer_mem = NULL;
     size_t timer_size;
@@ -301,7 +303,7 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
             tn->seq = rt->sequence++;
             tn->expire = now + tn->interval;
 
-            printf("%lu %lu %lu\n", tn->expire, now, tn->interval);
+            printf("%llu %llu %llu\n", tn->expire, now, tn->interval);
 
             ret = rt->sops->scheme_start(rt->scheme, node);
             
