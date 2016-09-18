@@ -8,6 +8,7 @@
 #include "stdbool.h"
 
 #include "list_node.h"
+#include "rb_node.h"
 
 typedef struct timer_node {
 
@@ -20,7 +21,7 @@ typedef struct timer_node {
     void* action_data;
 
     list_node node;
-    //struct rb_node tree_node;
+    rb_node tree_node;
 
 }timer_node;
 
