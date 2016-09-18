@@ -1,9 +1,3 @@
-/*********************************************
-* Filename: scheme.h
-* Author: PIzhou
-* Mail: yuanzhou@outlook.com
-* CreateTime: 2016年09月12日 星期一 14时37分16秒
-*********************************************/
 
 #ifndef _SCHEME_H_
 #define _SCHEME_H_
@@ -33,6 +27,6 @@ struct scheme_operations {
 
 
 
-#endif
+#endif /* _SCHEME_H_ */
 
 

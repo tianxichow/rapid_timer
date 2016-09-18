@@ -27,4 +27,4 @@ int sorted_list_stop(void* scheme, list_node *node);
 int sorted_list_get(void* scheme, uint64_t last_timestamp, 
                     uint64_t now_timestamp, list_node* expire_head);
 
-#endif
+#endif /* _SORTED_LIST_H_ */

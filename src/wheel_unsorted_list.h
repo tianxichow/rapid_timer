@@ -30,4 +30,4 @@ int wheel_unsorted_list_get(void* scheme, uint64_t last_timestamp,
 
 
 
-#endif
+#endif /* _WHEEL_UNSORTED_LIST_H_ */

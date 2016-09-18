@@ -1,9 +1,3 @@
-/*********************************************
-* Filename: timer_node.h
-* Author: PIzhou
-* Mail: yuanzhou@outlook.com
-* CreateTime: 2016年09月08日 星期四 16时23分27秒
-*********************************************/
 
 #ifndef _TIMER_NODE_H_
 #define _TIMER_NODE_H_
@@ -42,6 +36,6 @@ uint64_t timer_node_interval(const list_node* node);
 
 uint64_t timer_node_expire(const list_node* node);
 
-#endif
+#endif /* _TIMER_NODE_H_ */
 
 

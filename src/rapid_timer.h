@@ -1,13 +1,6 @@
-/*********************************************
-* Filename: tapid_timer.h
-* Author: PIzhou
-* Mail: yuanzhou@outlook.com
-* CreateTime: 2016年09月08日 星期四 10时08分58秒
-*********************************************/
 
-
-#ifndef RAPID_TIMER_H_
-#define RAPID_TIMER_H_
+#ifndef _RAPID_TIMER_H_
+#define _RAPID_TIMER_H_
 
 #include "stdio.h"
 #include "stdlib.h"
@@ -77,4 +70,4 @@ int repid_timer_stop(rapid_timer* rt, timer_id id);
 int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp);
 
 
-#endif
+#endif /* _RAPID_TIMER_H_ */

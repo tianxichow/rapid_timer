@@ -1,9 +1,3 @@
-/*********************************************
-* Filename: hierarchical_wheel.h
-* Author: PIzhou
-* Mail: yuanzhou@outlook.com
-* CreateTime: 2016年09月14日 星期三 15时53分30秒
-*********************************************/
 
 #ifndef _HIERARCHICAL_WHEEL_H_
 #define _HIERARCHICAL_WHEEL_H_
@@ -42,6 +36,6 @@ int hierarchical_wheel_get(void* scheme, uint64_t last_timestamp,
                            uint64_t now_timestamp, list_node* expire_head);
 
 
-#endif
+#endif /* _HIERARCHICAL_WHEEL_H_ */
 
 

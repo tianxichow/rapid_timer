@@ -1,9 +1,3 @@
-/*********************************************
-* Filename: list_node.h
-* Author: PIzhou
-* Mail: yuanzhou@outlook.com
-* CreateTime: 2016年09月09日 星期五 15时55分19秒
-*********************************************/
 
 #ifndef _LIST_NODE_H_                                                                   
 #define _LIST_NODE_H_
@@ -52,4 +46,4 @@ void list_move_tail(list_node *node, list_node *head);
             NULL != pos->prev && pos != (head); \
             pos = prev, prev = pos->prev)
 
-#endif 
+#endif /* _LIST_NODE_H_ */
