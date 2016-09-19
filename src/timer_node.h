@@ -37,8 +37,6 @@ uint64_t timer_node_interval(const list_node *node);
 
 uint64_t timer_node_expire(const list_node *node);
 
-list_node *timer_node_list(const rb_node* entry);
-
 #endif /* _TIMER_NODE_H_ */
 
 

@@ -11,8 +11,8 @@ static int cascade(hierarchical_wheel *hw,
     list_node *next_entry;
 
     list_for_each_safe(entry, next_entry, wheel_head + index) {
-        hierarchical_wheel_stop(hw, entry);
-        hierarchical_wheel_start(hw, entry);
+        hierarchical_wheel_stop(hw, entry->entity);
+        hierarchical_wheel_start(hw, entry->entity);
     }
 
     return index;
@@ -89,7 +89,7 @@ int hierarchical_wheel_start(void *scheme, timer_node *node) {
         head_node = hw->hw5 + i;
     }
 
-    list_add_tail(node->list_entry, head_node);
+    list_add_tail(&node->list_entry, head_node);
 
     return 0;
 }
@@ -100,7 +100,7 @@ int hierarchical_wheel_stop(void *scheme, timer_node *node) {
         return -1;
     }
     
-    list_del(node->list_entry);
+    list_del(&node->list_entry);
     return 0;
 }
 

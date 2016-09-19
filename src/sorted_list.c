@@ -3,7 +3,7 @@
 #include "timer_node.h"
 
 
-void* sorted_list_init(void* mem, size_t mem_size) {
+void *sorted_list_init(void *mem, size_t mem_size) {
 
     if (NULL == mem) {
         return NULL;
@@ -15,7 +15,7 @@ void* sorted_list_init(void* mem, size_t mem_size) {
         return NULL;
     }
 
-    sorted_list* sl = (sorted_list*)mem;
+    sorted_list *sl = (sorted_list*)mem;
 
     list_head_init(&sl->head);
     sl->list_nodes = 0;
@@ -23,14 +23,14 @@ void* sorted_list_init(void* mem, size_t mem_size) {
     return sl;
 }
 
-int sorted_list_start(void* scheme, timer_node *node) {
+int sorted_list_start(void *scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
     }
 
     sorted_list *sl = (sorted_list*)scheme;
-    list_node *entry = node->list_entry;
+    list_node *entry = &node->list_entry;
 
 	list_node *check_entry;
 
@@ -46,18 +46,18 @@ int sorted_list_start(void* scheme, timer_node *node) {
     return 0;
 }
 
-int sorted_list_stop(void* scheme, timer_node *node) {
+int sorted_list_stop(void *scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
     }
 
-    list_del(node->list_entry);
+    list_del(&node->list_entry);
     return 0;
 }
 
-int sorted_list_get(void* scheme, uint64_t last_timestamp, 
-                    uint64_t now_timestamp, list_node* expire_head) {
+int sorted_list_get(void *scheme, uint64_t last_timestamp, 
+                    uint64_t now_timestamp, list_node *expire_head) {
 
     if (NULL == scheme) {
         return -1;

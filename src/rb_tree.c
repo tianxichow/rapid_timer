@@ -36,9 +36,9 @@ void *rb_tree_init(void *mem, size_t mem_size) {
         return NULL;
     }
 
-    rb_tree* rbt = (rb_tree *)mem;
+    rb_tree *rbt = (rb_tree *)mem;
 
-    RB_ROOT(&rbt);
+    RB_EMPTY_ROOT(&rbt->root);
     rbt->rb_nodes = 0;
 
     return rbt;
@@ -51,14 +51,14 @@ int rb_tree_start(void *scheme, timer_node *node) {
     }
 
     rb_tree *rbt = (rb_tree *)scheme;
-    rb_node *rb_entry = (rb_node *)node->rb_entry;
+    rb_node *rb_entry = (rb_node *)(&node->rb_entry);
 
-    rb_node **new_entry = &(rbt->root->child), *parent = NULL;
+    rb_node **new_entry = &(rbt->root.child), *parent = NULL;
     timer_node *new = NULL;
 
     while (*new_entry) {
 
-        new = (timer_node *)new_entry->entity;
+        new = (timer_node *)(*new_entry)->entity;
         parent = *new_entry;
 
         if (node->expire < new->expire) {
@@ -66,15 +66,14 @@ int rb_tree_start(void *scheme, timer_node *node) {
         } else if (node->expire > new->expire) {
             new_entry = &((*new_entry)->rb_right);    
         } else {
-            timer_node* head_node = (timer_node *)((*new_entry)->entity);
-            list_add_tail(&node->list_entry, new);
+            list_add_tail(&node->list_entry, &new->list_entry);
             return 0;
         }
             
     }
 
     rb_link_node(rb_entry, parent, new_entry);
-    rb_insert_color(rb_entry, root);
+    rb_insert_color(rb_entry, &rbt->root);
 
     list_head_init(&node->list_entry);
 
@@ -89,20 +88,20 @@ int rb_tree_stop(void *scheme, timer_node *node) {
 
     rb_tree *rbt = (rb_tree *)scheme;
  
-    rb_node *rb_entry = search_rb_node(rbt->root, node->expire);
+    rb_node *rb_entry = search_rb_node(&rbt->root, node->expire);
 
     if (NULL == rb_entry) {
         return -1;
     }
 
-    if (&rb_entry->entity == node) {
+    if (rb_entry->entity == node) {
         
         list_del(&node->list_entry);
-        rb_erase(rb_entry, rbt->root);
+        rb_erase(rb_entry, &rbt->root);
         return 0;
     }
 
-    list_node *head = ((timer_node *)(rb_entry->entity))->list_entry;
+    list_node *head = &((timer_node *)(rb_entry->entity))->list_entry;
     list_node *entry;
     list_node *next_entry;
 
@@ -111,7 +110,7 @@ int rb_tree_stop(void *scheme, timer_node *node) {
         if (entry == &node->list_entry) {
 
             list_del(&node->list_entry);
-            rb_erase(rb_entry, rbt->root);
+            rb_erase(rb_entry, &rbt->root);
             return 0;
         }
 
@@ -128,22 +127,11 @@ int rb_tree_get(void *scheme, uint64_t last_timestamp,
     } 
     
     rb_tree *rbt = (rb_tree *)scheme;
-
-    rb_node *rb_entry = rbt->root->child;
     timer_node *node = NULL;
-
-    for (rb_entry = rb_first(rbt->root); rb_entry; rb_entry = rb_next(rb_entry)) {
-        
-        node = (timer_node *)rb_entry->entity;
-
-        if (node->expire < now_timestamp) {
-            rb_erase(rb_entry, rbt->root);
-        }
-    }
-
     list_node *entry;
     list_node *next_entry;
-    rb_entry = rb_first(rbt->root);
+
+    rb_node *rb_entry = rb_first(&rbt->root);
 
     while (rb_entry) {
 
@@ -157,12 +145,12 @@ int rb_tree_get(void *scheme, uint64_t last_timestamp,
             list_move_tail(entry, expire_head);
         }
 
-        rb_erase(rb_entry, rbt->root);
+        rb_erase(rb_entry, &rbt->root);
         list_node_init(&node->list_entry);
 
         list_add_tail(&node->list_entry, expire_head);
 
-        rb_entry = rb_first(rbt->root);
+        rb_entry = rb_first(&rbt->root);
 
     }
 

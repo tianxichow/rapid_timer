@@ -32,6 +32,3 @@ uint64_t timer_node_expire(const list_node *node) {
     return ((timer_node *)node->entity)->expire;
 }
 
-list_node *timer_node_list(const rb_node* entry) {
-    return ((timer_node *)entry->entity)->node;
-}

@@ -26,10 +26,6 @@ typedef struct rb_root
 #define rb_set_red(r)  				((r)->color = RB_RED)
 #define rb_set_black(r)  			((r)->color = RB_BLACK)
 
-
-
-#define RB_ROOT	(rb_root) { NULL, }
-
 #define RB_EMPTY_ROOT(root)	((root)->child == NULL)
 #define RB_EMPTY_NODE(node)	((node)->rb_parent == node)
 #define RB_CLEAR_NODE(node)	((node)->rb_parent = node)

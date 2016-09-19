@@ -91,10 +91,10 @@ int free_nodes_init(rapid_timer *rt) {
 
     while ((node_index + 1) * sizeof(timer_node) < tn_mem_size) {
 
-        timer_node *tn = &timer_nodes[node_index];
-        tn->id = node_index;
-        timer_node_init(tn);
-        list_add_tail(&tn->node, &rt->free_timer_nodes);
+        timer_node *node = &timer_nodes[node_index];
+        node->id = node_index;
+        timer_node_init(node);
+        list_add_tail(&node->list_entry, &rt->free_timer_nodes);
 
         ++node_index;
     }

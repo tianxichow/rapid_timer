@@ -36,10 +36,10 @@ void list_move_tail(list_node *node, list_node *head);
     for (pos = (head)->prev; NULL != pos->prev && pos != (head); \
             pos = pos->prev)
 
-#define list_for_each_safe(pos, next, head) \
-    for (pos = (head)->next, next = pos->next; \
+#define list_for_each_safe(pos, next_entry, head) \
+    for (pos = (head)->next, next_entry = pos->next; \
             NULL != pos->next && pos != (head); \
-            pos = next, next = pos->next)
+            pos = next_entry, next_entry = pos->next)
 
 #define list_for_each_prev_safe(pos, prev, head) \
     for (pos = (head)->prev, prev = pos->prev; \

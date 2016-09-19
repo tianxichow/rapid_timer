@@ -37,9 +37,8 @@ int wheel_unsorted_list_start(void *scheme, timer_node *node) {
     }
 
     wheel_unsorted_list *wul = (wheel_unsorted_list *)scheme;
-    list_node *entry = node;
 
-    list_add_tail(node->list_entry, &wul->wheel[node->expire % WHEEL_SLOT_NUMS]);
+    list_add_tail(&node->list_entry, &wul->wheel[node->expire % WHEEL_SLOT_NUMS]);
     return 0;
 }
 
@@ -49,7 +48,7 @@ int wheel_unsorted_list_stop(void *scheme, timer_node *node) {
         return -1;
     }
     
-    list_del(node->list_entry);
+    list_del(&node->list_entry);
     return 0;
 }
 

@@ -37,7 +37,7 @@ int wheel_sorted_list_start(void *scheme, timer_node *node) {
     }
 
     wheel_sorted_list *wsl = (wheel_sorted_list *)scheme;
-    list_node *entry = node->list_entry;
+    list_node *entry = &node->list_entry;
 
     list_node *check_entry;
     list_node *head_entry = &wsl->wheel[node->expire % WHEEL_SLOT_NUMS];
@@ -53,13 +53,13 @@ int wheel_sorted_list_start(void *scheme, timer_node *node) {
     return 0;
 }
 
-int wheel_sorted_list_stop(void *scheme, list_node *node) {
+int wheel_sorted_list_stop(void *scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
     }
     
-    list_del(node->list_entry);
+    list_del(&node->list_entry);
     return 0;
 }
 

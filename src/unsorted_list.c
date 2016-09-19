@@ -30,7 +30,7 @@ int unsorted_list_start(void *scheme, timer_node *node) {
 
     unsorted_list *ul = (unsorted_list*)scheme;
 
-    list_add_tail(node->list_entry, &ul->head);
+    list_add_tail(&node->list_entry, &ul->head);
     return 0;
 }
 
@@ -40,7 +40,7 @@ int unsorted_list_stop(void *scheme, timer_node *node) {
         return -1;
     }
     
-    list_del(node->list_entry);
+    list_del(&node->list_entry);
     return 0;
 }
 
