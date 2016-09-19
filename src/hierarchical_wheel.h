@@ -26,14 +26,14 @@ typedef struct hierarchical_wheel {
 
 extern const struct scheme_operations hierarchical_wheel_operations; 
 
-void* hierarchical_wheel_init(void* mem, size_t mem_size);
+void *hierarchical_wheel_init(void *mem, size_t mem_size);
 
-int hierarchical_wheel_start(void* scheme, list_node *node);
+int hierarchical_wheel_start(void *scheme, timer_node *node);
 
-int hierarchical_wheel_stop(void* scheme, list_node *node);
+int hierarchical_wheel_stop(void *scheme, timer_node *node);
 
-int hierarchical_wheel_get(void* scheme, uint64_t last_timestamp, 
-                           uint64_t now_timestamp, list_node* expire_head);
+int hierarchical_wheel_get(void *scheme, uint64_t last_timestamp, 
+                           uint64_t now_timestamp, list_node *expire_head);
 
 
 #endif /* _HIERARCHICAL_WHEEL_H_ */

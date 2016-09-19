@@ -14,7 +14,7 @@
 // for scheme
 #define UNSORTED_LIST                       0
 #define SORTED_LIST                         1
-#define RBTREE                              2
+#define RB_TREE                             2
 #define WHEEL_UNSORTED_LIST                 3
 #define WHEEL_SORTED_LIST                   4
 #define HIERARCHICAL_WHEEL                  5

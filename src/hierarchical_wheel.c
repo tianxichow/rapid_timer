@@ -7,12 +7,12 @@ static int cascade(hierarchical_wheel *hw,
 
     int index = (hw->last_timestamp >> (WHELL_ROOT_SLOT_BITS + (wheel_index - 1) * WHEEL_SLOT_BITS)) & WHEEL_SLOT_MARSK;
 
-    list_node *node;
-    list_node *next;
+    list_node *entry;
+    list_node *next_entry;
 
-    list_for_each_safe(node, next, wheel_head + index) {
-        hierarchical_wheel_stop(hw, node);
-        hierarchical_wheel_start(hw, node);
+    list_for_each_safe(entry, next_entry, wheel_head + index) {
+        hierarchical_wheel_stop(hw, entry);
+        hierarchical_wheel_start(hw, entry);
     }
 
     return index;
@@ -54,7 +54,7 @@ void *hierarchical_wheel_init(void *mem, size_t mem_size) {
     return hw;
 }
 
-int hierarchical_wheel_start(void *scheme, list_node *node) {
+int hierarchical_wheel_start(void *scheme, timer_node *node) {
     
     if (NULL == scheme) {
         return -1;
@@ -62,7 +62,7 @@ int hierarchical_wheel_start(void *scheme, list_node *node) {
 
     hierarchical_wheel *hw = (hierarchical_wheel *)scheme;
 
-    uint64_t expire = timer_node_expire(node);
+    uint64_t expire = node->expire;
     int64_t interval = expire - hw->last_timestamp;
     
     list_node *head_node = NULL;
@@ -89,18 +89,18 @@ int hierarchical_wheel_start(void *scheme, list_node *node) {
         head_node = hw->hw5 + i;
     }
 
-    list_add_tail(node, head_node);
+    list_add_tail(node->list_entry, head_node);
 
     return 0;
 }
 
-int hierarchical_wheel_stop(void *scheme, list_node *node) {
+int hierarchical_wheel_stop(void *scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
     }
     
-    list_del(node);
+    list_del(node->list_entry);
     return 0;
 }
 
@@ -113,8 +113,8 @@ int hierarchical_wheel_get(void *scheme, uint64_t last_timestamp,
     
     hierarchical_wheel *hw = (hierarchical_wheel *)scheme;
     
-    list_node *node;
-    list_node *next;
+    list_node *entry;
+    list_node *next_entry;
 
     while (hw->last_timestamp < now_timestamp) {
 
@@ -125,8 +125,8 @@ int hierarchical_wheel_get(void *scheme, uint64_t last_timestamp,
                       !cascade(hw, hw->hw4, 4) &&
                       !cascade(hw, hw->hw5, 5)) {};
         
-        list_for_each_safe(node, next, hw->hw1 + index) {
-            list_move_tail(node, expire_head);
+        list_for_each_safe(entry, next_entry, hw->hw1 + index) {
+            list_move_tail(entry, expire_head);
         }
 
         hw->last_timestamp++;

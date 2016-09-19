@@ -6,6 +6,7 @@
 
 #include "unsorted_list.h"
 #include "sorted_list.h"
+#include "rb_tree.h"
 #include "wheel_unsorted_list.h"
 #include "wheel_sorted_list.h"
 #include "hierarchical_wheel.h"
@@ -44,6 +45,9 @@ int scheme_init(rapid_timer *rt) {
         case SORTED_LIST:
             rt->sops = &sorted_list_operations;
             break;
+        case RB_TREE:
+            rt->sops = &rb_tree_operations;
+            break;            
         case WHEEL_UNSORTED_LIST:
             rt->sops = &wheel_unsorted_list_operations;
             break;
@@ -209,18 +213,18 @@ int rapid_timer_start(rapid_timer *rt, struct timeval *now_timestamp,
         return -1; 
     }
 
-    // get free node
-    list_node *node = rt->free_timer_nodes.next;
-    list_del(node);
+    // get free timer_node
+    list_node *list_entry = rt->free_timer_nodes.next;
+    list_del(list_entry);
 
     // fill timer_node
-    timer_node *tn = node->entity;
-    tn->seq = rt->sequence++;
-    tn->interval = __reduction(interval, rt->accuracy);
-    tn->expire = __reduction(now_timestamp, rt->accuracy) + tn->interval;
-    tn->is_repeate = is_repeate;
-    tn->action_handler = action_handler;
-    tn->action_data = action_data;
+    timer_node *node = list_entry->entity;
+    node->seq = rt->sequence++;
+    node->interval = __reduction(interval, rt->accuracy);
+    node->expire = __reduction(now_timestamp, rt->accuracy) + node->interval;
+    node->is_repeate = is_repeate;
+    node->action_handler = action_handler;
+    node->action_data = action_data;
 
     int ret = 0;
 
@@ -228,13 +232,13 @@ int rapid_timer_start(rapid_timer *rt, struct timeval *now_timestamp,
 
     if (0 != ret) {
      
-        timer_node_init(tn);
-        list_add_tail(&tn->node, &rt->free_timer_nodes);
+        timer_node_init(node);
+        list_add_tail(&node->list_entry, &rt->free_timer_nodes);
         return -1;
     }
 
     if (NULL != id) {
-        *id = tn->id;
+        *id = node->id;
     }
     
     return 0;
@@ -254,11 +258,11 @@ int repid_timer_stop(rapid_timer *rt, timer_id id) {
         return -1;
     }
 
-    timer_node *tn = &rt->timer_nodes[id];
+    timer_node *node = &rt->timer_nodes[id];
 
-    rt->sops->scheme_stop(rt->scheme, &tn->node);
-    timer_node_init(tn);
-    list_add_tail(&tn->node, &rt->free_timer_nodes);
+    rt->sops->scheme_stop(rt->scheme, node);
+    timer_node_init(node);
+    list_add_tail(&node->list_entry, &rt->free_timer_nodes);
 
     return 0;
 }
@@ -279,37 +283,38 @@ int repid_timer_tick(rapid_timer *rt, struct timeval *now_timestamp) {
     list_node expire_head;
     list_head_init(&expire_head);
     
-    list_node *node;
-    list_node *next;
+    list_node *entry;
+    list_node *next_entry;
     
     ret = rt->sops->scheme_get(rt->scheme, last, now, &expire_head);
 
-    list_for_each_safe(node, next, &expire_head) {
+    list_for_each_safe(entry, next_entry, &expire_head) {
         
-        timer_node *tn = (timer_node *)node->entity;
+        list_del(entry);
+        timer_node *node = (timer_node *)entry->entity;
 
-        if (NULL != tn->action_handler) {
-            tn->action_handler(tn->action_data);
+        if (NULL != node->action_handler) {
+            node->action_handler(node->action_data);
         } 
 
-        if (tn->is_repeate) {
+        if (node->is_repeate) {
     
-            tn->seq = rt->sequence++;
-            tn->expire = now + tn->interval;
+            node->seq = rt->sequence++;
+            node->expire = now + node->interval;
 
-            printf("%llu %llu %llu\n", tn->expire, now, tn->interval);
+            printf("%llu %llu %llu\n", node->expire, now, node->interval);
 
             ret = rt->sops->scheme_start(rt->scheme, node);
             
             if (0 != ret) {
-                timer_node_init(tn);
-                list_add_tail(&tn->node, &rt->free_timer_nodes);
+                timer_node_init(node);
+                list_add_tail(entry, &rt->free_timer_nodes);
                 return -1;
             }
 
         } else {
-            timer_node_init(tn);
-            list_add_tail(&tn->node, &rt->free_timer_nodes);
+            timer_node_init(node);
+            list_add_tail(entry, &rt->free_timer_nodes);
         }
     }
 

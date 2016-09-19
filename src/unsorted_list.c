@@ -22,7 +22,7 @@ void *unsorted_list_init(void *mem, size_t mem_size) {
     return ul;
 }
 
-int unsorted_list_start(void *scheme, list_node *node) {
+int unsorted_list_start(void *scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
@@ -30,17 +30,17 @@ int unsorted_list_start(void *scheme, list_node *node) {
 
     unsorted_list *ul = (unsorted_list*)scheme;
 
-    list_add_tail(node, &ul->head);
+    list_add_tail(node->list_entry, &ul->head);
     return 0;
 }
 
-int unsorted_list_stop(void *scheme, list_node *node) {
+int unsorted_list_stop(void *scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
     }
     
-    list_del(node);
+    list_del(node->list_entry);
     return 0;
 }
 
@@ -53,16 +53,16 @@ int unsorted_list_get(void *scheme, uint64_t last_timestamp,
 
     unsorted_list *ul = (unsorted_list *)scheme;
 
-    list_node *node;
-    list_node *next;
+    list_node *entry;
+    list_node *next_entry;
 
-    list_for_each_safe(node, next, &ul->head) {
+    list_for_each_safe(entry, next_entry, &ul->head) {
         
-        if (!is_expire_node(node, now_timestamp)) {
+        if (!is_expire_node(entry, now_timestamp)) {
             continue;
         }
 
-        list_move_tail(node, expire_head);
+        list_move_tail(entry, expire_head);
     }
 
     return 0;

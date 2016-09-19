@@ -5,13 +5,11 @@
 void list_head_init(list_node *head) {
     head->next = head;
     head->prev = head;
-    head->entity = NULL;
 }
 
 void list_node_init(list_node *node) {
     node->next = NULL;
     node->prev = NULL;
-    node->entity = NULL;
 }
 
 int list_is_empty(const list_node *head) {

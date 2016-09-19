@@ -17,15 +17,15 @@ typedef struct timer_node {
     uint64_t interval;           
     uint64_t expire;              
     bool is_repeate;
-    int (*action_handler)(const void*);
+    int (*action_handler)(const void *);
     void *action_data;
 
-    list_node node;
-    rb_node tree_node;
+    list_node list_entry;
+    rb_node rb_entry;
 
 }timer_node;
 
-void timer_node_init(timer_node *tn);
+void timer_node_init(timer_node *node);
 
 bool is_expire_node(const list_node *node, uint64_t now_timestamp);
 
@@ -36,6 +36,8 @@ bool timer_node_later_than(const list_node *node, const list_node *check_node);
 uint64_t timer_node_interval(const list_node *node);
 
 uint64_t timer_node_expire(const list_node *node);
+
+list_node *timer_node_list(const rb_node* entry);
 
 #endif /* _TIMER_NODE_H_ */
 

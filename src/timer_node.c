@@ -3,12 +3,13 @@
 
 #include "timer_node.h"
 
-void timer_node_init(timer_node *tn) {
+void timer_node_init(timer_node *node) {
    
-    int node_index = tn->id;
-    memset(tn, 0x0, sizeof(timer_node));
-    tn->id = node_index;
-    tn->node.entity = tn;
+    int node_index = node->id;
+    memset(node, 0x0, sizeof(timer_node));
+    node->id = node_index;
+    node->list_entry.entity = node;
+    node->rb_entry.entity = node;
 }
 
 bool is_expire_node(const list_node *node, uint64_t now_timestamp) {
@@ -29,4 +30,8 @@ uint64_t timer_node_interval(const list_node *node) {
 
 uint64_t timer_node_expire(const list_node *node) {
     return ((timer_node *)node->entity)->expire;
+}
+
+list_node *timer_node_list(const rb_node* entry) {
+    return ((timer_node *)entry->entity)->node;
 }

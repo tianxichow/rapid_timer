@@ -6,6 +6,7 @@
 #include <sys/time.h> 
 
 #include "list_node.h"
+#include "timer_node.h"
 
 
 #define WHEEL_SLOT_BITS                 12
@@ -18,15 +19,12 @@
 struct scheme_operations {
 
     void *(*scheme_init)(void *mem, size_t mem_size);
-    int (*scheme_start)(void *scheme, list_node *node);
-    int (*scheme_stop)(void *scheme, list_node *node);
+    int (*scheme_start)(void *scheme, timer_node *node);
+    int (*scheme_stop)(void *scheme, timer_node *node);
     int (*scheme_get)(void *scheme, uint64_t last_timestamp, 
                       uint64_t now_timestamp, list_node *expire_head);
     size_t size;
 };
 
-
-
 #endif /* _SCHEME_H_ */
-
 

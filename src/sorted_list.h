@@ -18,13 +18,13 @@ typedef struct sorted_list {
 
 extern const struct scheme_operations sorted_list_operations;
 
-void* sorted_list_init(void* mem, size_t mem_size);
+void *sorted_list_init(void *mem, size_t mem_size);
 
-int sorted_list_start(void* scheme, list_node *node);
+int sorted_list_start(void *scheme, timer_node *node);
 
-int sorted_list_stop(void* scheme, list_node *node);
+int sorted_list_stop(void *scheme, timer_node *node);
 
-int sorted_list_get(void* scheme, uint64_t last_timestamp, 
-                    uint64_t now_timestamp, list_node* expire_head);
+int sorted_list_get(void *scheme, uint64_t last_timestamp, 
+                    uint64_t now_timestamp, list_node *expire_head);
 
 #endif /* _SORTED_LIST_H_ */

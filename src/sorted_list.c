@@ -23,35 +23,36 @@ void* sorted_list_init(void* mem, size_t mem_size) {
     return sl;
 }
 
-int sorted_list_start(void* scheme, list_node *node) {
+int sorted_list_start(void* scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
     }
 
     sorted_list *sl = (sorted_list*)scheme;
+    list_node *entry = node->list_entry;
 
-	list_node *check_node;
+	list_node *check_entry;
 
-	list_for_each(check_node, &sl->head) {
-		if (!timer_node_later_than(node, check_node)) {
-			list_add_tail(node, check_node);
+	list_for_each(check_entry, &sl->head) {
+		if (!timer_node_later_than(entry, check_entry)) {
+			list_add_tail(entry, check_entry);
 			return 0;
 		}
 	}
 
-    list_add_tail(node, &sl->head);
+    list_add_tail(entry, &sl->head);
 
     return 0;
 }
 
-int sorted_list_stop(void* scheme, list_node *node) {
+int sorted_list_stop(void* scheme, timer_node *node) {
 
     if (NULL == scheme) {
         return -1;
     }
 
-    list_del(node);
+    list_del(node->list_entry);
     return 0;
 }
 
@@ -64,16 +65,16 @@ int sorted_list_get(void* scheme, uint64_t last_timestamp,
     
     sorted_list *sl = (sorted_list*)scheme;
 
-    list_node *node;
-    list_node *next;
+    list_node *entry;
+    list_node *next_entry;
 
-    list_for_each_safe(node, next, &sl->head) {
+    list_for_each_safe(entry, next_entry, &sl->head) {
         
-        if (!is_expire_node(node, now_timestamp)) {
+        if (!is_expire_node(entry, now_timestamp)) {
             continue;
         }
 
-        list_move_tail(node, expire_head);
+        list_move_tail(entry, expire_head);
     }
 
     return 0;
