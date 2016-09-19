@@ -7,7 +7,7 @@
 
 typedef struct list_node {
     struct list_node *next, *prev;
-    void* entity;
+    void *entity;
 }list_node;
 
 void list_head_init(list_node *head);

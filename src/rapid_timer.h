@@ -40,34 +40,34 @@ typedef struct rapid_timer {
 
     int scheme_id;
     uint32_t accuracy;
-    void* mem;
+    void *mem;
     int mem_size;
 
-    timer_node* timer_nodes;
+    timer_node *timer_nodes;
     uint32_t timer_node_nums;
     list_node free_timer_nodes;
     uint32_t sequence;
 
     struct timeval last_tick;
 
-    void* scheme;
-    const struct scheme_operations* sops;
+    void *scheme;
+    const struct scheme_operations *sops;
 
     char err_msg[1024];
 
 }rapid_timer;
 
-rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
-                              void* mem, size_t mem_size, int persist_type);
+rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
+                              void *mem, size_t mem_size, int persist_type);
 
-int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp, 
-                      struct timeval* interval, bool is_repeate, 
-                      int (*action_handler)(const void*), void* action_data, 
+int rapid_timer_start(rapid_timer *rt, struct timeval *now_timestamp, 
+                      struct timeval *interval, bool is_repeate, 
+                      int (*action_handler)(const void*), void *action_data, 
                       timer_id *id);
 
-int repid_timer_stop(rapid_timer* rt, timer_id id);
+int repid_timer_stop(rapid_timer *rt, timer_id id);
 
-int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp);
+int repid_timer_tick(rapid_timer *rt, struct timeval *now_timestamp);
 
 
 #endif /* _RAPID_TIMER_H_ */

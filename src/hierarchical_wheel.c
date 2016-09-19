@@ -2,8 +2,8 @@
 #include "hierarchical_wheel.h"
 #include "timer_node.h"
 
-static int cascade(hierarchical_wheel* hw, 
-                   list_node* wheel_head, int wheel_index) {
+static int cascade(hierarchical_wheel *hw, 
+                   list_node *wheel_head, int wheel_index) {
 
     int index = (hw->last_timestamp >> (WHELL_ROOT_SLOT_BITS + (wheel_index - 1) * WHEEL_SLOT_BITS)) & WHEEL_SLOT_MARSK;
 
@@ -18,7 +18,7 @@ static int cascade(hierarchical_wheel* hw,
     return index;
 }
 
-void* hierarchical_wheel_init(void* mem, size_t mem_size) {
+void *hierarchical_wheel_init(void *mem, size_t mem_size) {
 
     if (NULL == mem) {
         return NULL;
@@ -30,7 +30,7 @@ void* hierarchical_wheel_init(void* mem, size_t mem_size) {
         return NULL;
     }
 
-    hierarchical_wheel* hw = (hierarchical_wheel*)mem;
+    hierarchical_wheel *hw = (hierarchical_wheel *)mem;
 
     int i = 0;
     
@@ -54,18 +54,18 @@ void* hierarchical_wheel_init(void* mem, size_t mem_size) {
     return hw;
 }
 
-int hierarchical_wheel_start(void* scheme, list_node *node) {
+int hierarchical_wheel_start(void *scheme, list_node *node) {
     
     if (NULL == scheme) {
         return -1;
     }
 
-    hierarchical_wheel* hw = (hierarchical_wheel*)scheme;
+    hierarchical_wheel *hw = (hierarchical_wheel *)scheme;
 
     uint64_t expire = timer_node_expire(node);
     int64_t interval = expire - hw->last_timestamp;
     
-    list_node* head_node = NULL;
+    list_node *head_node = NULL;
 
     if (interval <= 0) {
         head_node = hw->hw1 + (hw->last_timestamp & WHELL_ROOT_SLOT_MARKS);
@@ -80,7 +80,7 @@ int hierarchical_wheel_start(void* scheme, list_node *node) {
                                                             WHEEL_SLOT_MARSK;
         head_node = hw->hw3 + i;
     } else if (interval < 1LL << (WHELL_ROOT_SLOT_BITS + 3 * WHEEL_SLOT_BITS)) {
-        int i = (expire >> (WHELL_ROOT_SLOT_BITS + 2 * WHEEL_SLOT_BITS)) & 
+        int i = (expire >> (WHELL_ROOT_SLOT_BITS + 2  *WHEEL_SLOT_BITS)) & 
                                                             WHEEL_SLOT_MARSK;
         head_node = hw->hw4 + i;
     } else {
@@ -94,7 +94,7 @@ int hierarchical_wheel_start(void* scheme, list_node *node) {
     return 0;
 }
 
-int hierarchical_wheel_stop(void* scheme, list_node *node) {
+int hierarchical_wheel_stop(void *scheme, list_node *node) {
 
     if (NULL == scheme) {
         return -1;
@@ -104,14 +104,14 @@ int hierarchical_wheel_stop(void* scheme, list_node *node) {
     return 0;
 }
 
-int hierarchical_wheel_get(void* scheme, uint64_t last_timestamp, 
-                            uint64_t now_timestamp, list_node* expire_head) {
+int hierarchical_wheel_get(void *scheme, uint64_t last_timestamp, 
+                            uint64_t now_timestamp, list_node *expire_head) {
 
     if (NULL == scheme) {
         return -1;
     }
     
-    hierarchical_wheel* hw = (hierarchical_wheel*)scheme;
+    hierarchical_wheel *hw = (hierarchical_wheel *)scheme;
     
     list_node *node;
     list_node *next;

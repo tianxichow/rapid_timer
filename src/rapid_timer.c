@@ -1,9 +1,3 @@
-/*********************************************
-* Filename: rapid_timer.c
-* Author: PIzhou
-* Mail: yuanzhou@outlook.com
-* CreateTime: 2016年09月08日 星期四 15时04分06秒
-*********************************************/
 
 #include "rapid_timer.h"  
 #include "string.h"
@@ -21,17 +15,17 @@
 
 
 
-static inline uint64_t __timeval_to_u64(struct timeval* timestamp) {
+static inline uint64_t __timeval_to_u64(struct timeval *timestamp) {
 
     uint64_t timestamp_sce = timestamp->tv_sec;
     return (timestamp_sce * USEC_PER_SEC) + timestamp->tv_usec;
 }
 
-static inline uint64_t __reduction(struct timeval* timestamp, uint32_t accuracy) {
+static inline uint64_t __reduction(struct timeval *timestamp, uint32_t accuracy) {
     return __timeval_to_u64(timestamp) / accuracy;
 }
 
-int scheme_init(rapid_timer* rt) {
+int scheme_init(rapid_timer *rt) {
 
     if (NULL == rt) {
      
@@ -72,7 +66,7 @@ int scheme_init(rapid_timer* rt) {
     return 0;
 };
 
-int free_nodes_init(rapid_timer* rt) {
+int free_nodes_init(rapid_timer *rt) {
 
     if (NULL == rt) {
      
@@ -80,7 +74,7 @@ int free_nodes_init(rapid_timer* rt) {
         return -1;
     }
 
-    timer_node* timer_nodes = rt->mem + sizeof(rapid_timer) + rt->sops->size;
+    timer_node *timer_nodes = rt->mem + sizeof(rapid_timer) + rt->sops->size;
     size_t tn_mem_size = rt->mem_size - sizeof(rapid_timer) - rt->sops->size;
 
     if (tn_mem_size < sizeof(timer_node)) {
@@ -91,9 +85,9 @@ int free_nodes_init(rapid_timer* rt) {
 
     int node_index = 0;
 
-    while ((node_index + 1)* sizeof(timer_node) < tn_mem_size) {
+    while ((node_index + 1) * sizeof(timer_node) < tn_mem_size) {
 
-        timer_node* tn = &timer_nodes[node_index];
+        timer_node *tn = &timer_nodes[node_index];
         tn->id = node_index;
         timer_node_init(tn);
         list_add_tail(&tn->node, &rt->free_timer_nodes);
@@ -106,8 +100,8 @@ int free_nodes_init(rapid_timer* rt) {
     return 0;
 }
 
-rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
-                              void* mem, size_t mem_size, int persist_type) {
+rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
+                              void *mem, size_t mem_size, int persist_type) {
 
     if (scheme_id < UNSORTED_LIST || scheme_id > HIERARCHICAL_WHEEL) {
 
@@ -116,8 +110,8 @@ rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
     }
 
     int ret = 0;
-    rapid_timer* rt = NULL;
-    void* timer_mem = NULL;
+    rapid_timer *rt = NULL;
+    void *timer_mem = NULL;
     size_t timer_size;
 
     if (NULL != mem) {
@@ -198,9 +192,9 @@ rapid_timer* rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
 }
 
 
-int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp, 
-                      struct timeval* interval, bool is_repeate, 
-                      int (*action_handler)(const void*), void* action_data, 
+int rapid_timer_start(rapid_timer *rt, struct timeval *now_timestamp, 
+                      struct timeval *interval, bool is_repeate, 
+                      int (*action_handler)(const void*), void *action_data, 
                       timer_id *id) {
 
     if (NULL == rt || NULL == now_timestamp || NULL == interval) {
@@ -216,11 +210,11 @@ int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp,
     }
 
     // get free node
-    list_node* node = rt->free_timer_nodes.next;
+    list_node *node = rt->free_timer_nodes.next;
     list_del(node);
 
     // fill timer_node
-    timer_node* tn = node->entity;
+    timer_node *tn = node->entity;
     tn->seq = rt->sequence++;
     tn->interval = __reduction(interval, rt->accuracy);
     tn->expire = __reduction(now_timestamp, rt->accuracy) + tn->interval;
@@ -246,7 +240,7 @@ int rapid_timer_start(rapid_timer* rt, struct timeval* now_timestamp,
     return 0;
 }
 
-int repid_timer_stop(rapid_timer* rt, timer_id id) {
+int repid_timer_stop(rapid_timer *rt, timer_id id) {
 
     if (NULL == rt) {
      
@@ -260,7 +254,7 @@ int repid_timer_stop(rapid_timer* rt, timer_id id) {
         return -1;
     }
 
-    timer_node* tn = &rt->timer_nodes[id];
+    timer_node *tn = &rt->timer_nodes[id];
 
     rt->sops->scheme_stop(rt->scheme, &tn->node);
     timer_node_init(tn);
@@ -269,7 +263,7 @@ int repid_timer_stop(rapid_timer* rt, timer_id id) {
     return 0;
 }
 
-int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
+int repid_timer_tick(rapid_timer *rt, struct timeval *now_timestamp) {
 
     if (NULL == rt || NULL == now_timestamp) {
      
@@ -285,14 +279,14 @@ int repid_timer_tick(rapid_timer* rt, struct timeval* now_timestamp) {
     list_node expire_head;
     list_head_init(&expire_head);
     
-    list_node* node;
-    list_node* next;
+    list_node *node;
+    list_node *next;
     
     ret = rt->sops->scheme_get(rt->scheme, last, now, &expire_head);
 
     list_for_each_safe(node, next, &expire_head) {
         
-        timer_node* tn = (timer_node*)node->entity;
+        timer_node *tn = (timer_node *)node->entity;
 
         if (NULL != tn->action_handler) {
             tn->action_handler(tn->action_data);

@@ -13,6 +13,7 @@ static void __rb_rotate_left(rb_node *node, rb_root *root) {
     right->rb_parent = parent;
 
     if (parent) {
+
         if (node == parent->rb_left) {
             parent->rb_left = right;
         } else {
@@ -38,8 +39,8 @@ static void __rb_rotate_right(rb_node *node, rb_root *root) {
     left->rb_right = node;
     left->rb_parent = parent;
 
-    if (parent)
-    {
+    if (parent) {
+
         if (node == parent->rb_right) {
             parent->rb_right = left;
         } else {
@@ -55,9 +56,12 @@ static void __rb_rotate_right(rb_node *node, rb_root *root) {
 }
 
 void rb_insert_color(rb_node *node, rb_root *root) {
-    rb_node *parent, *gparent;
+
+    rb_node *parent;
+    rb_node *gparent;
 
     while ((parent = node->rb_parent) && rb_is_red(parent)) {
+
         gparent = parent->rb_parent;
 
         if (parent == gparent->rb_left) {
@@ -65,6 +69,7 @@ void rb_insert_color(rb_node *node, rb_root *root) {
                 register rb_node *uncle = gparent->rb_right;
                 
                 if (uncle && rb_is_red(uncle)) {
+
                     rb_set_black(uncle);
                     rb_set_black(parent);
                     rb_set_red(gparent);
@@ -91,6 +96,7 @@ void rb_insert_color(rb_node *node, rb_root *root) {
                 register rb_node *uncle = gparent->rb_left;
                 
                 if (uncle && rb_is_red(uncle)) {
+
                     rb_set_black(uncle);
                     rb_set_black(parent);
                     rb_set_red(gparent);
@@ -218,13 +224,14 @@ void rb_erase(rb_node *node, rb_root *root) {
     } else {
 
         rb_node *old = node, *left;
-
         node = node->rb_right;
+
         while ((left = node->rb_left) != NULL) {
             node = left;
         }
             
         if (old->rb_parent) {
+
             if (old->rb_parent->rb_left == old) {
                 old->rb_parent->rb_left = node;
             } else {
@@ -241,6 +248,7 @@ void rb_erase(rb_node *node, rb_root *root) {
         if (parent == old) {
             parent = node;
         } else {
+
             if (child) {
                 child->rb_parent = parent;
             }
@@ -290,7 +298,6 @@ void rb_erase(rb_node *node, rb_root *root) {
 rb_node *rb_first(const rb_root *root) {
     
     rb_node	*n;
-
     n = root->child;
 
     if (!n) {

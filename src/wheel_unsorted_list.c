@@ -4,7 +4,7 @@
 
 
 
-void* wheel_unsorted_list_init(void* mem, size_t mem_size) {
+void *wheel_unsorted_list_init(void *mem, size_t mem_size) {
 
     if (NULL == mem) {
         return NULL;
@@ -16,7 +16,7 @@ void* wheel_unsorted_list_init(void* mem, size_t mem_size) {
         return NULL;
     }
 
-    wheel_unsorted_list* wul = (wheel_unsorted_list*)mem;
+    wheel_unsorted_list *wul = (wheel_unsorted_list *)mem;
 
     int i = 0;
 
@@ -30,19 +30,19 @@ void* wheel_unsorted_list_init(void* mem, size_t mem_size) {
     return wul;
 }
 
-int wheel_unsorted_list_start(void* scheme, list_node *node) {
+int wheel_unsorted_list_start(void *scheme, list_node *node) {
     
     if (NULL == scheme) {
         return -1;
     }
 
-    wheel_unsorted_list* wul = (wheel_unsorted_list*)scheme;
+    wheel_unsorted_list *wul = (wheel_unsorted_list *)scheme;
 
     list_add_tail(node, &wul->wheel[get_slot(node, WHEEL_SLOT_NUMS)]);
     return 0;
 }
 
-int wheel_unsorted_list_stop(void* scheme, list_node *node) {
+int wheel_unsorted_list_stop(void *scheme, list_node *node) {
 
     if (NULL == scheme) {
         return -1;
@@ -52,14 +52,14 @@ int wheel_unsorted_list_stop(void* scheme, list_node *node) {
     return 0;
 }
 
-int wheel_unsorted_list_get(void* scheme, uint64_t last_timestamp, 
-                            uint64_t now_timestamp, list_node* expire_head) {
+int wheel_unsorted_list_get(void *scheme, uint64_t last_timestamp, 
+                            uint64_t now_timestamp, list_node *expire_head) {
 
     if (NULL == scheme) {
         return -1;
     }
     
-    wheel_unsorted_list* wul = (wheel_unsorted_list*)scheme;
+    wheel_unsorted_list *wul = (wheel_unsorted_list *)scheme;
 
     uint32_t last_slot = last_timestamp % WHEEL_SLOT_NUMS;
     uint32_t this_slot = now_timestamp % WHEEL_SLOT_NUMS;

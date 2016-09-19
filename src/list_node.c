@@ -1,9 +1,3 @@
-/*********************************************
-* Filename: list_node.c
-* Author: PIzhou
-* Mail: yuanzhou@outlook.com
-* CreateTime: 2016年09月09日 星期五 16时28分06秒
-*********************************************/
 
 #include "list_node.h"
 
@@ -22,7 +16,7 @@ void list_node_init(list_node *node) {
 
 int list_is_empty(const list_node *head) {
     
-    list_node* next = head->next;
+    list_node *next = head->next;
     return (next == head) && (next == head->prev);
 }
 
@@ -46,7 +40,7 @@ void list_add_tail(list_node *node, list_node *head) {
     __list_add(node, head->prev, head); 
 }
 
-static inline void __list_del(list_node * prev, list_node * next)
+static inline void __list_del(list_node *prev, list_node *next)
 {
     next->prev = prev;
     prev->next = next;

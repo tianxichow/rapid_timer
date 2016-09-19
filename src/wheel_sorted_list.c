@@ -4,7 +4,7 @@
 
 
 
-void* wheel_sorted_list_init(void* mem, size_t mem_size) {
+void *wheel_sorted_list_init(void *mem, size_t mem_size) {
 
     if (NULL == mem) {
         return NULL;
@@ -16,7 +16,7 @@ void* wheel_sorted_list_init(void* mem, size_t mem_size) {
         return NULL;
     }
 
-    wheel_sorted_list* wsl = (wheel_sorted_list*)mem;
+    wheel_sorted_list *wsl = (wheel_sorted_list *)mem;
 
     int i = 0;
 
@@ -30,16 +30,16 @@ void* wheel_sorted_list_init(void* mem, size_t mem_size) {
     return wsl;
 }
 
-int wheel_sorted_list_start(void* scheme, list_node *node) {
+int wheel_sorted_list_start(void *scheme, list_node *node) {
     
     if (NULL == scheme) {
         return -1;
     }
 
-    wheel_sorted_list* wsl = (wheel_sorted_list*)scheme;
+    wheel_sorted_list *wsl = (wheel_sorted_list *)scheme;
 
-    list_node* check_node;
-    list_node* head_node = &wsl->wheel[get_slot(node, WHEEL_SLOT_NUMS)];
+    list_node *check_node;
+    list_node *head_node = &wsl->wheel[get_slot(node, WHEEL_SLOT_NUMS)];
 
 	list_for_each(check_node, head_node) {
 		if (!timer_node_later_than(node, check_node)) {
@@ -52,7 +52,7 @@ int wheel_sorted_list_start(void* scheme, list_node *node) {
     return 0;
 }
 
-int wheel_sorted_list_stop(void* scheme, list_node *node) {
+int wheel_sorted_list_stop(void *scheme, list_node *node) {
 
     if (NULL == scheme) {
         return -1;
@@ -62,14 +62,14 @@ int wheel_sorted_list_stop(void* scheme, list_node *node) {
     return 0;
 }
 
-int wheel_sorted_list_get(void* scheme, uint64_t last_timestamp, 
-                            uint64_t now_timestamp, list_node* expire_head) {
+int wheel_sorted_list_get(void *scheme, uint64_t last_timestamp, 
+                            uint64_t now_timestamp, list_node *expire_head) {
 
     if (NULL == scheme) {
         return -1;
     }
     
-    wheel_sorted_list* wsl = (wheel_sorted_list*)scheme;
+    wheel_sorted_list *wsl = (wheel_sorted_list *)scheme;
 
     uint32_t last_slot = last_timestamp % WHEEL_SLOT_NUMS;
     uint32_t this_slot = now_timestamp % WHEEL_SLOT_NUMS;
