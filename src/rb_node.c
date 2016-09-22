@@ -61,7 +61,7 @@ void rb_insert_color(rb_node *node, rb_root *root) {
     rb_node *gparent;
 
     while ((parent = node->rb_parent) && rb_is_red(parent)) {
-
+        // node and parent is red
         gparent = parent->rb_parent;
 
         if (parent == gparent->rb_left) {

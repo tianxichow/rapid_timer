@@ -41,7 +41,7 @@ extern rb_node *rb_last(const rb_root *);
 extern void rb_replace_node(rb_node *victim, rb_node *new, rb_root *root);
 
 static inline void rb_link_node(rb_node *node, rb_node *parent, 
-                                               rb_node* *rb_link) {
+                                               rb_node **rb_link) {
 
     node->rb_parent = parent;
     node->rb_left = node->rb_right = NULL;

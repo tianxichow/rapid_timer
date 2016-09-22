@@ -14,7 +14,14 @@
 #define MAGIC_NUM           1024
 #define USEC_PER_SEC        1000000ull
 
-
+const struct scheme_operations *sops[MAX_SCHEME_NUMS] = {
+    &unsorted_list_operations,          // UNSORTED_LIST
+    &sorted_list_operations,            // SORTED_LIST
+    &rb_tree_operations,                // RB_TREE
+    &wheel_unsorted_list_operations,    // WHEEL_UNSORTED_LIST
+    &wheel_sorted_list_operations,      // WHEEL_SORTED_LIST
+    &hierarchical_wheel_operations      // HIERARCHICAL_WHEEL
+};
 
 static inline uint64_t __timeval_to_u64(struct timeval *timestamp) {
 
@@ -25,50 +32,6 @@ static inline uint64_t __timeval_to_u64(struct timeval *timestamp) {
 static inline uint64_t __reduction(struct timeval *timestamp, uint32_t accuracy) {
     return __timeval_to_u64(timestamp) / accuracy;
 }
-
-int scheme_init(rapid_timer *rt) {
-
-    if (NULL == rt) {
-     
-        printf("rapid_timer is NULL, scheme_init failed\n");
-        return -1;
-    }
-
-    void *scheme_mem = rt->mem + sizeof(rapid_timer);
-    size_t scheme_mem_size = rt->mem_size - sizeof(rapid_timer);
-
-    switch(rt->scheme_id) {
-
-        case UNSORTED_LIST:
-            rt->sops = &unsorted_list_operations;
-            break;
-        case SORTED_LIST:
-            rt->sops = &sorted_list_operations;
-            break;
-        case RB_TREE:
-            rt->sops = &rb_tree_operations;
-            break;            
-        case WHEEL_UNSORTED_LIST:
-            rt->sops = &wheel_unsorted_list_operations;
-            break;
-        case WHEEL_SORTED_LIST:
-            rt->sops = &wheel_sorted_list_operations;
-            break;
-        case HIERARCHICAL_WHEEL:
-            rt->sops = &hierarchical_wheel_operations;
-            break;
-        default:
-            break;
-    }
-            
-    rt->scheme = rt->sops->scheme_init(scheme_mem,  scheme_mem_size);
-            
-    if (NULL == rt->scheme) {
-        return -1;
-    }
-
-    return 0;
-};
 
 int free_nodes_init(rapid_timer *rt) {
 
@@ -145,7 +108,7 @@ rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
 
     } else {
         
-        timer_size = sizeof(rapid_timer) + DEFAULT_TIMER_NUMS * sizeof(timer_node);
+        timer_size = sizeof(rapid_timer) + sops[scheme_id]->size + DEFAULT_TIMER_NUMS * sizeof(timer_node);
 
         timer_mem = malloc(timer_size);
 
@@ -161,6 +124,7 @@ rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
 
     rt->magic_num = MAGIC_NUM;
     rt->scheme_id = scheme_id;
+    rt->sops = sops[scheme_id];
     rt->accuracy = accuracy;
     rt->mem = timer_mem;
     rt->mem_size = timer_size;
@@ -170,9 +134,12 @@ rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
 
     memset(rt->err_msg, 0x0, 1024);
 
-    ret = scheme_init(rt);
+    void *scheme_mem = rt->mem + sizeof(rapid_timer);
+    size_t scheme_mem_size = rt->mem_size - sizeof(rapid_timer);
 
-    if (0 != ret) {
+    rt->scheme = rt->sops->scheme_init(scheme_mem,  scheme_mem_size);
+            
+    if (NULL == rt->scheme) {
 
         if (NULL == mem) {
             free(timer_mem);
