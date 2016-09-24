@@ -7,3 +7,6 @@ compiler:
   - gcc
 
 script: make
+
+after_success:
+  - coveralls
