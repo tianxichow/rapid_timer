@@ -3,6 +3,12 @@ LIBOBJS = $(patsubst %.c,%.o,$(SOURCE))
 SOURCE = $(wildcard src/*.c)
 OBJSDIR = .objs
 CFLAG = -Wall 
+LFLAG = 
+
+ifeq ($(coverage), yes)
+	CFLAG += -fprofile-arcs -ftest-coverage
+	LFLAG += -fprofile-arcs -ftest-coverage
+endif
 
 DEMO_SOURCE = $(wildcard example/*.c)
 DEMO_OBJS = $(patsubst %.c,%.o,$(DEMO_SOURCE))
@@ -43,7 +49,7 @@ example:FORCE
 			echo -e "example/$(DEMO_TARGET).o $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\
 			exit 1; \
 		fi; \
-		if (gcc $(CFLAG) example/$(DEMO_TARGET).o librapid_timer.a -o example/$(DEMO_TARGET)); then \
+		if (gcc $(CFLAG) $(LFLAG) example/$(DEMO_TARGET).o librapid_timer.a -o example/$(DEMO_TARGET)); then \
 			echo -e "example/$(DEMO_TARGET) $(OFFSET)$(SUCCESS_COLOR)[ ok ]$(RESET)"; \
 		else \
 			echo -e "example/$(DEMO_TARGET) $(OFFSET)$(FAILURE_COLOR)[ failed ]$(RESET)";\

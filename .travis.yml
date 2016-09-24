@@ -6,7 +6,10 @@ compiler:
   - clang
   - gcc
 
-script: make
+before_install:
+  - pip install --user cpp-coveralls
+
+script: make coverage=yes 
 
 after_success:
-  - coveralls
+  - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
