@@ -5,7 +5,9 @@
 static int cascade(hierarchical_wheel *hw, 
                    list_node *wheel_head, int wheel_index) {
 
-    int index = (hw->last_timestamp >> (WHELL_ROOT_SLOT_BITS + (wheel_index - 1) * WHEEL_SLOT_BITS)) & WHEEL_SLOT_MARSK;
+    int index = (hw->last_timestamp >> 
+                 (WHELL_ROOT_SLOT_BITS + (wheel_index - 2) * WHEEL_SLOT_BITS)) & 
+                 WHEEL_SLOT_MARSK;
 
     list_node *entry;
     list_node *next_entry;
@@ -18,7 +20,7 @@ static int cascade(hierarchical_wheel *hw,
     return index;
 }
 
-void *hierarchical_wheel_init(void *mem, size_t mem_size) {
+void *hierarchical_wheel_init(void *mem, size_t mem_size, uint64_t now_timestamp) {
 
     if (NULL == mem) {
         return NULL;
@@ -35,21 +37,24 @@ void *hierarchical_wheel_init(void *mem, size_t mem_size) {
     int i = 0;
     
     while (i < WHELL_ROOT_SLOT_NUMS) {
-        list_head_init(&hw->hw1[i]);
+        list_head_init(hw->hw1 + i);
         ++i;
     }
     
     i = 0;
 
     while (i < WHEEL_SLOT_NUMS) {
-        list_head_init(&hw->hw2[i]);
-        list_head_init(&hw->hw3[i]);
-        list_head_init(&hw->hw4[i]);
-        list_head_init(&hw->hw5[i]);
+        list_head_init(hw->hw2 + i);
+        list_head_init(hw->hw3 + i);
+        list_head_init(hw->hw4 + i);
+        list_head_init(hw->hw5 + i);
         ++i;
     }
 
     hw->list_nodes = 0;
+    hw->last_timestamp = now_timestamp;
+    printf("last_timestamp %llu\n", hw->last_timestamp);
+
 
     return hw;
 }
@@ -72,7 +77,7 @@ int hierarchical_wheel_start(void *scheme, timer_node *node) {
     } else if (interval < WHELL_ROOT_SLOT_NUMS) {
         int i = expire & WHELL_ROOT_SLOT_MARKS;
         head_node = hw->hw1 + i;
-    } else if (interval < 1 << (WHELL_ROOT_SLOT_BITS + WHEEL_SLOT_BITS)) {
+    } else if (interval < 1LL << (WHELL_ROOT_SLOT_BITS + WHEEL_SLOT_BITS)) {
         int i = (expire >> WHELL_ROOT_SLOT_BITS) & WHEEL_SLOT_MARSK;
         head_node = hw->hw2 + i;
     } else if (interval < 1LL << (WHELL_ROOT_SLOT_BITS + 2 * WHEEL_SLOT_BITS)) {
@@ -116,7 +121,7 @@ int hierarchical_wheel_get(void *scheme, uint64_t last_timestamp,
     list_node *entry;
     list_node *next_entry;
 
-    while (hw->last_timestamp < now_timestamp) {
+    do {
 
         int index = hw->last_timestamp & WHELL_ROOT_SLOT_MARKS;
 
@@ -129,8 +134,9 @@ int hierarchical_wheel_get(void *scheme, uint64_t last_timestamp,
             list_move_tail(entry, expire_head);
         }
 
-        hw->last_timestamp++;
-    }
+    } while (++hw->last_timestamp <= now_timestamp) ;
+
+    hw->last_timestamp = now_timestamp;
 
     return 0;
 }

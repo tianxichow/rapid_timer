@@ -19,14 +19,14 @@ typedef struct hierarchical_wheel {
     list_node hw5[WHEEL_SLOT_NUMS];
 
     uint32_t list_nodes;
-    uint32_t last_timestamp;
+    uint64_t last_timestamp;
 
 }hierarchical_wheel;
 
 
 extern const struct scheme_operations hierarchical_wheel_operations; 
 
-void *hierarchical_wheel_init(void *mem, size_t mem_size);
+void *hierarchical_wheel_init(void *mem, size_t mem_size, uint64_t now_timestamp);
 
 int hierarchical_wheel_start(void *scheme, timer_node *node);
 

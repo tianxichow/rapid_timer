@@ -17,7 +17,7 @@ typedef struct timer_node {
     uint64_t interval;           
     uint64_t expire;              
     bool is_repeate;
-    int (*action_handler)(const void *);
+    int (*action_handler)(const void *, uint32_t);
     void *action_data;
 
     list_node list_entry;

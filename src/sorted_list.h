@@ -18,7 +18,7 @@ typedef struct sorted_list {
 
 extern const struct scheme_operations sorted_list_operations;
 
-void *sorted_list_init(void *mem, size_t mem_size);
+void *sorted_list_init(void *mem, size_t mem_size, uint64_t now_timestamp);
 
 int sorted_list_start(void *scheme, timer_node *node);
 

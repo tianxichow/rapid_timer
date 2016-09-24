@@ -58,12 +58,13 @@ typedef struct rapid_timer {
 }rapid_timer;
 
 rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
-                              void *mem, size_t mem_size, int persist_type);
+                              void *mem, size_t mem_size, int persist_type, 
+                              struct timeval *now_timestamp);
 
 int rapid_timer_start(rapid_timer *rt, struct timeval *now_timestamp, 
                       struct timeval *interval, bool is_repeate, 
-                      int (*action_handler)(const void*), void *action_data, 
-                      timer_id *id);
+                      int (*action_handler)(const void*, timer_id), 
+                      void *action_data, timer_id *id);
 
 int repid_timer_stop(rapid_timer *rt, timer_id id);
 

@@ -4,16 +4,23 @@
 
 #include "../src/rapid_timer.h"
 
-int timer_action(const void* data) {
-    printf("ding\n");
+int timer_action(const void* data, timer_id id) {
+    printf("ding %d\n", id);
     return 0;
 }
+
+
 
 int main() {
 
     int ret = 0;
+    struct timeval now;
+    struct timeval interval;
+    timer_id id;
 
-    rapid_timer* rt = rapid_timer_init(UNSORTED_LIST, 1, NULL, 0, PROCESS_PERSIST);
+    gettimeofday(&now, NULL);
+
+    rapid_timer* rt = rapid_timer_init(RB_TREE, 1000000, NULL, 0, PROCESS_PERSIST, &now);
 
     if (NULL == rt) {
         printf("rapid_timer_init failed\n");
@@ -21,10 +28,6 @@ int main() {
     }
 
     printf("rapid_timer_init success\n");
-
-    struct timeval now;
-    struct timeval interval;
-    timer_id id;
 
     gettimeofday(&now, NULL);
 

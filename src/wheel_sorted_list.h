@@ -18,7 +18,7 @@ typedef struct wheel_sorted_list {
 
 extern const struct scheme_operations wheel_sorted_list_operations; 
 
-void *wheel_sorted_list_init(void *mem, size_t mem_size);
+void *wheel_sorted_list_init(void *mem, size_t mem_size, uint64_t now_timestamp);
 
 int wheel_sorted_list_start(void *scheme, timer_node *node);
 

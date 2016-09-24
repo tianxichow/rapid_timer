@@ -2,7 +2,7 @@
 #include "unsorted_list.h"
 #include "timer_node.h"
 
-void *unsorted_list_init(void *mem, size_t mem_size) {
+void *unsorted_list_init(void *mem, size_t mem_size, uint64_t now_timestamp) {
 
     if (NULL == mem) {
         return NULL;

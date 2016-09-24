@@ -68,12 +68,19 @@ int free_nodes_init(rapid_timer *rt) {
 }
 
 rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy, 
-                              void *mem, size_t mem_size, int persist_type) {
+                              void *mem, size_t mem_size, int persist_type,
+                              struct timeval *now_timestamp) {
 
     if (scheme_id < UNSORTED_LIST || scheme_id > HIERARCHICAL_WHEEL) {
 
         printf("scheme_id=%d error\n", scheme_id);
         return NULL;
+    }
+
+    if (NULL == now_timestamp) {
+
+         printf("now_timestamp is null\n");
+        return NULL;       
     }
 
     int ret = 0;
@@ -137,7 +144,8 @@ rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
     void *scheme_mem = rt->mem + sizeof(rapid_timer);
     size_t scheme_mem_size = rt->mem_size - sizeof(rapid_timer);
 
-    rt->scheme = rt->sops->scheme_init(scheme_mem,  scheme_mem_size);
+    rt->scheme = rt->sops->scheme_init(scheme_mem,  scheme_mem_size, 
+                                       __reduction(now_timestamp, rt->accuracy));
             
     if (NULL == rt->scheme) {
 
@@ -165,8 +173,8 @@ rapid_timer *rapid_timer_init(uint32_t scheme_id, uint32_t accuracy,
 
 int rapid_timer_start(rapid_timer *rt, struct timeval *now_timestamp, 
                       struct timeval *interval, bool is_repeate, 
-                      int (*action_handler)(const void*), void *action_data, 
-                      timer_id *id) {
+                      int (*action_handler)(const void*, timer_id), 
+                      void *action_data, timer_id *id) {
 
     if (NULL == rt || NULL == now_timestamp || NULL == interval) {
      
@@ -261,7 +269,7 @@ int repid_timer_tick(rapid_timer *rt, struct timeval *now_timestamp) {
         timer_node *node = (timer_node *)entry->entity;
 
         if (NULL != node->action_handler) {
-            node->action_handler(node->action_data);
+            node->action_handler(node->action_data, node->id);
         } 
 
         if (node->is_repeate) {
@@ -269,7 +277,7 @@ int repid_timer_tick(rapid_timer *rt, struct timeval *now_timestamp) {
             node->seq = rt->sequence++;
             node->expire = now + node->interval;
 
-            printf("%llu %llu %llu\n", node->expire, now, node->interval);
+            printf("start %llu %llu %llu\n", node->expire, now, node->interval);
 
             ret = rt->sops->scheme_start(rt->scheme, node);
             

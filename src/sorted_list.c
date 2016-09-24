@@ -3,7 +3,7 @@
 #include "timer_node.h"
 
 
-void *sorted_list_init(void *mem, size_t mem_size) {
+void *sorted_list_init(void *mem, size_t mem_size, uint64_t now_timestamp) {
 
     if (NULL == mem) {
         return NULL;

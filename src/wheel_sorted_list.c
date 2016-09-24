@@ -4,7 +4,7 @@
 
 
 
-void *wheel_sorted_list_init(void *mem, size_t mem_size) {
+void *wheel_sorted_list_init(void *mem, size_t mem_size, uint64_t now_timestamp) {
 
     if (NULL == mem) {
         return NULL;
@@ -21,7 +21,7 @@ void *wheel_sorted_list_init(void *mem, size_t mem_size) {
     int i = 0;
 
     while (i < WHEEL_SLOT_NUMS) {
-        list_head_init(&wsl->wheel[i]);
+        list_head_init(wsl->wheel + i);
         ++i;
     }
 
@@ -40,7 +40,7 @@ int wheel_sorted_list_start(void *scheme, timer_node *node) {
     list_node *entry = &node->list_entry;
 
     list_node *check_entry;
-    list_node *head_entry = &wsl->wheel[node->expire % WHEEL_SLOT_NUMS];
+    list_node *head_entry = wsl->wheel + (node->expire % WHEEL_SLOT_NUMS);
 
 	list_for_each(check_entry, head_entry) {
 		if (!timer_node_later_than(entry, check_entry)) {
@@ -89,7 +89,7 @@ int wheel_sorted_list_get(void *scheme, uint64_t last_timestamp,
 
         //printf("check slot %u\n", last_slot);
 
-        list_for_each_safe(entry, next_entry, &wsl->wheel[last_slot]) {
+        list_for_each_safe(entry, next_entry, wsl->wheel + last_slot) {
         
             if (!is_expire_node(entry, now_timestamp)) {
                 continue;

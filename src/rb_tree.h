@@ -18,7 +18,7 @@ typedef struct rb_tree {
 
 extern const struct scheme_operations rb_tree_operations;
 
-void *rb_tree_init(void *mem, size_t mem_size);
+void *rb_tree_init(void *mem, size_t mem_size, uint64_t now_timestamp);
 
 int rb_tree_start(void *scheme, timer_node *node);
 

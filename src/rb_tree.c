@@ -24,7 +24,7 @@ static inline rb_node *search_rb_node(rb_root *root, uint64_t expire)
 }
 
 
-void *rb_tree_init(void *mem, size_t mem_size) {
+void *rb_tree_init(void *mem, size_t mem_size, uint64_t now_timestamp) {
 
     if (NULL == mem) {
         return NULL;

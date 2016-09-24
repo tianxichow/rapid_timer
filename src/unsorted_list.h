@@ -18,7 +18,7 @@ typedef struct unsorted_list {
 
 extern const struct scheme_operations unsorted_list_operations;
 
-void *unsorted_list_init(void *mem, size_t mem_size);
+void *unsorted_list_init(void *mem, size_t mem_size, uint64_t now_timestamp);
 
 int unsorted_list_start(void *scheme, timer_node *node);
 

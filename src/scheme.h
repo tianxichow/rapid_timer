@@ -18,7 +18,7 @@
 
 struct scheme_operations {
 
-    void *(*scheme_init)(void *mem, size_t mem_size);
+    void *(*scheme_init)(void *mem, size_t mem_size, uint64_t now_timestamp);
     int (*scheme_start)(void *scheme, timer_node *node);
     int (*scheme_stop)(void *scheme, timer_node *node);
     int (*scheme_get)(void *scheme, uint64_t last_timestamp, 
