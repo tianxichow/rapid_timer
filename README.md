@@ -7,8 +7,6 @@
 * [rapid_timer GitHub](https://github.com/rangechow/rapid_timer)
 
 
-https://api.travis-ci.org/rangechow/rapid_timer.png?branch=master%20%22Travis%20build%20status%22
-
 ## Build status
 
 | [Linux][lin-link] | 
