@@ -13,4 +13,5 @@ script: make coverage=yes
 
 after_success:
   - ./example/sample_demo
+  - tree
   - coveralls --exclude ./example/sample_demo --gcov-options '\-blp'
