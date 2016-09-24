@@ -6,8 +6,8 @@ CFLAG = -Wall
 LFLAG = 
 
 ifeq ($(coverage), yes)
-	CFLAG += -fprofile-arcs -ftest-coverage
-	LFLAG += -fprofile-arcs -ftest-coverage
+	CFLAG +=  -fprofile-arcs -ftest-coverage
+	LFLAG +=  -lgcov
 endif
 
 DEMO_SOURCE = $(wildcard example/*.c)
