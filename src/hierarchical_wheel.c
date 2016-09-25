@@ -53,7 +53,7 @@ void *hierarchical_wheel_init(void *mem, size_t mem_size, uint64_t now_timestamp
 
     hw->list_nodes = 0;
     hw->last_timestamp = now_timestamp;
-    printf("last_timestamp %llu\n", hw->last_timestamp);
+    //printf("last_timestamp %llu\n", hw->last_timestamp);
 
 
     return hw;

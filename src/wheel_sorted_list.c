@@ -78,9 +78,11 @@ int wheel_sorted_list_get(void *scheme, uint64_t last_timestamp,
     
     if (gap > this_slot) {
         this_slot = (last_slot - 1) % WHEEL_SLOT_NUMS;
-    } 
+    } else if (gap == 0) {
+        this_slot++;
+    }
 
-    printf("%u %u\n", last_slot, this_slot);
+    //printf("%u %u\n", last_slot, this_slot);
 
     list_node *entry;
     list_node *next_entry;

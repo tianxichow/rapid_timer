@@ -13,7 +13,7 @@ void timer_node_init(timer_node *node) {
 }
 
 bool is_expire_node(const list_node *node, uint64_t now_timestamp) {
-    return ((timer_node*)node->entity)->expire < now_timestamp;
+    return ((timer_node*)node->entity)->expire <= now_timestamp;
 }
 
 uint32_t get_slot(const list_node *node, uint32_t slot_nums) {

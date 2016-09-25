@@ -63,7 +63,7 @@ int free_nodes_init(rapid_timer *rt) {
     }
 
     rt->timer_node_nums = node_index;
-    printf("%d timer_node init\n", node_index);
+    //printf("%d timer_node init\n", node_index);
     return 0;
 }
 
@@ -277,7 +277,7 @@ int repid_timer_tick(rapid_timer *rt, struct timeval *now_timestamp) {
             node->seq = rt->sequence++;
             node->expire = now + node->interval;
 
-            printf("start %llu %llu %llu\n", node->expire, now, node->interval);
+            //printf("start %llu %llu %llu\n", node->expire, now, node->interval);
 
             ret = rt->sops->scheme_start(rt->scheme, node);
             

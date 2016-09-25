@@ -12,6 +12,6 @@ before_install:
 script: make coverage=yes 
 
 after_success:
-  - ./example/sample_demo
+  - ./test/repeate_timer_test
   - tree
-  - coveralls --exclude ./example/sample_demo --gcov-options '\-blp'
+  - coveralls --exclude ./test/ --exclude ./example/ --gcov-options '\-blp'
