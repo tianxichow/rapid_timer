@@ -14,5 +14,6 @@ script: make coverage=yes
 after_success:
   - ./test/repeate_timer_test
   - ./test/multi_timer_test
+  - ./test/stop_timer_test
   - tree
   - coveralls --exclude ./test/ --exclude ./example/ --gcov-options '\-blp'
