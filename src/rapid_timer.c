@@ -41,7 +41,7 @@ int free_nodes_init(rapid_timer *rt) {
         return -1;
     }
 
-    timer_node *timer_nodes = rt->mem + sizeof(rapid_timer) + rt->sops->size;
+    rt->timer_nodes = rt->mem + sizeof(rapid_timer) + rt->sops->size;
     size_t tn_mem_size = rt->mem_size - sizeof(rapid_timer) - rt->sops->size;
 
     if (tn_mem_size < sizeof(timer_node)) {
@@ -54,7 +54,7 @@ int free_nodes_init(rapid_timer *rt) {
 
     while ((node_index + 1) * sizeof(timer_node) < tn_mem_size) {
 
-        timer_node *node = &timer_nodes[node_index];
+        timer_node *node = rt->timer_nodes + node_index;
         node->id = node_index;
         timer_node_init(node);
         list_add_tail(&node->list_entry, &rt->free_timer_nodes);
@@ -227,13 +227,14 @@ int repid_timer_stop(rapid_timer *rt, timer_id id) {
         return -1;
     }
 
+
     if (id > rt->timer_node_nums) {
 
         printf("id=%u error, repid_timer_stop failed\n", id);
         return -1;
     }
 
-    timer_node *node = &rt->timer_nodes[id];
+    timer_node *node = rt->timer_nodes + id;
 
     rt->sops->scheme_stop(rt->scheme, node);
     timer_node_init(node);
@@ -276,8 +277,6 @@ int repid_timer_tick(rapid_timer *rt, struct timeval *now_timestamp) {
     
             node->seq = rt->sequence++;
             node->expire = now + node->interval;
-
-            //printf("start %llu %llu %llu\n", node->expire, now, node->interval);
 
             ret = rt->sops->scheme_start(rt->scheme, node);
             

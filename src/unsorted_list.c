@@ -36,7 +36,7 @@ int unsorted_list_start(void *scheme, timer_node *node) {
 
 int unsorted_list_stop(void *scheme, timer_node *node) {
 
-    if (NULL == scheme) {
+    if (NULL == scheme || NULL == node) {
         return -1;
     }
     
